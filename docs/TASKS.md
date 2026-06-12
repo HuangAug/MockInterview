@@ -215,9 +215,9 @@
 - 所有 Response schema 使用 camelCase alias（`model_config = ConfigDict(populate_by_name=True, alias_generator=to_camel)`）
 
 **验收标准：**
-- [ ] Model 字段名、类型、关系与 DATABASE.md 一致
-- [ ] Schema 字段与 API.md §2 一致
-- [ ] `from_attributes = True` 配置正确
+- [x] Model 字段名、类型、关系与 DATABASE.md 一致
+- [x] Schema 字段与 API.md §2 一致
+- [x] `from_attributes = True` 配置正确
 
 ---
 
