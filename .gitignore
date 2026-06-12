@@ -1,0 +1,50 @@
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+.venv/
+venv/
+env/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+htmlcov/
+.coverage
+
+# ===== Flutter / Dart =====
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+*.g.dart
+*.freezed.dart
+
+# ===== Environment =====
+.env
+.env.local
+.env.production
+
+# ===== Uploads =====
+uploads/
+
+# ===== IDE =====
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ===== Docker =====
+docker-compose.override.yml
+
+# ===== Misc =====
+*.log

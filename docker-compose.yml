@@ -1,0 +1,50 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: mockinterview-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: mockinterview
+      POSTGRES_PASSWORD: mockinterview
+      POSTGRES_DB: mockinterview
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mockinterview"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: mockinterview-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: mockinterview-backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - uploads:/app/uploads
+
+volumes:
+  pgdata:
+  uploads:
