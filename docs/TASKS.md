@@ -167,8 +167,8 @@
 | **参考** | DATABASE §5 DDL |
 
 **验收标准：**
-- [ ] `alembic upgrade head` 创建 job_roles, users, refresh_tokens 三张表
-- [ ] 所有 CHECK/UNIQUE/FK 约束与 DATABASE.md 一致
+- [x] `alembic upgrade head` 创建 job_roles, users, refresh_tokens 三张表
+- [x] 所有 CHECK/UNIQUE/FK 约束与 DATABASE.md 一致
 
 ---
 
