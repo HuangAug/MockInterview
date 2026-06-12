@@ -26,7 +26,9 @@
 2. 一次只做一个任务
 3. 完成后自检验收标准，再开始下一项
 4. 不得自行添加 PRD 外的功能
-5. Git 分支命名：`feature/T{id}-{slug}`
+5. 开始 Sprint 时创建分支：`feature/sprint-{n}-{slug}`（同一 Sprint 内所有 TASK 共用，不得为单个 TASK 创建独立分支）
+6. 每个 TASK 完成后仅 **Commit**，禁止 Push 或创建 PR
+7. Sprint 内全部 TASK 完成后，执行验证、Push 并创建 PR（详见 [CLAUDE.md](../CLAUDE.md) 与 [DEVELOPMENT_PLAN.md](./DEVELOPMENT_PLAN.md)）
 
 ---
 
@@ -830,3 +832,4 @@ flowchart TD
 | 版本 | 日期 | 变更 |
 |------|------|------|
 | 1.0.0 | 2026-06-12 | 初始 40 项任务 |
+| 1.0.1 | 2026-06-12 | §1.2 Git 工作流改为 Sprint 级 Push/PR |

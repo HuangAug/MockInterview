@@ -16,9 +16,28 @@
 | 代码注释 | 英文，仅解释非 obvious 逻辑 |
 | UI 文案 | 简体中文（硬编码在 Flutter 页面或 constants 文件） |
 | Git commit message | 英文，格式：`type(scope): description` |
-| Git 分支 | `feature/T{id}-{slug}`，如 `feature/T012-auth-routes` |
+| Git 分支 | `feature/sprint-{n}-{slug}`，如 `feature/sprint-1-infrastructure` |
+| Git Push / PR | 每个 TASK 仅 Commit；Sprint 全部 TASK 完成后 Push 并创建 PR |
 
-### 1.2 Commit Type
+### 1.2 Git 工作流
+
+| 时机 | 操作 |
+|------|------|
+| 开始 Sprint | 创建分支 `feature/sprint-{n}-{slug}` |
+| 每个 TASK 完成 | Commit（格式见 §1.1），更新任务状态 |
+| Sprint 全部 TASK 完成 | 执行验证 → `git push origin` 当前分支 → 创建 PR |
+
+**禁止：**
+
+- 为单个 TASK 创建独立分支
+- TASK 完成后 Push 或创建 PR
+- Push 到 `main` / `master`
+
+PR 必须包含：功能说明、修改文件、测试结果、风险分析、对应 Sprint、包含任务。
+
+完整规则见 [CLAUDE.md](../CLAUDE.md)。
+
+### 1.3 Commit Type
 
 | type | 用途 |
 |------|------|
@@ -29,7 +48,7 @@
 | docs | 文档 |
 | chore | 构建/工具 |
 
-### 1.3 禁止事项（全局）
+### 1.4 禁止事项（全局）
 
 - **禁止**实现 PRD Out of Scope 中的功能
 - **禁止**修改 API.md 中的字段名、路径、错误码
@@ -351,3 +370,4 @@ GoRoute(
 | 版本 | 日期 | 变更 |
 |------|------|------|
 | 1.0.0 | 2026-06-12 | 初始版本 |
+| 1.0.1 | 2026-06-12 | §1.1–1.2 Git 工作流改为 Sprint 级 Push/PR |
