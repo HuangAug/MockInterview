@@ -181,9 +181,9 @@
 | **参考** | DATABASE §5 |
 
 **验收标准：**
-- [ ] 6 张表全部创建成功
-- [ ] interview_messages 有 UNIQUE(session_id, sequence)
-- [ ] interview_reports 有 UNIQUE(session_id)
+- [x] 6 张表全部创建成功
+- [x] interview_messages 有 UNIQUE(session_id, sequence)
+- [x] interview_reports 有 UNIQUE(session_id)
 
 ---
 
