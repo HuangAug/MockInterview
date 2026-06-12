@@ -1,0 +1,10 @@
+以下是截至目前面试的对话记录：
+
+{conversation_history}
+
+当前已提问 {question_count} 个问题，最多 {max_questions} 个问题。
+
+请根据候选人的回答，给出下一个面试问题。
+- 如果候选人的回答过于简短或偏离主题，可以追问或换一个相关话题。
+- 如果已达到 {max_questions} 个问题，请输出 exactly: [INTERVIEW_COMPLETE]
+- 否则，输出下一个问题文本。

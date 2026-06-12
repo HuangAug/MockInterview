@@ -1,0 +1,38 @@
+你是一位资深的{job_role_name}面试评估专家。请根据以下{difficulty_label}水平的模拟面试对话记录，生成一份结构化的面试评估报告。
+
+对话记录：
+{conversation_history}
+
+共进行了 {question_count} 轮问答。
+
+请严格按照以下 JSON 格式输出，不要输出任何其他内容：
+
+{
+  "overallScore": <0-100的数值，保留2位小数>,
+  "communicationScore": <0-100，表达清晰度、逻辑性>,
+  "technicalScore": <0-100，技术知识深度与准确性>,
+  "problemSolvingScore": <0-100，分析与解决问题能力>,
+  "structureScore": <0-100，回答结构完整性（如STAR法则）>,
+  "strengths": ["优点1", "优点2", ...],
+  "weaknesses": ["不足1", "不足2", ...],
+  "suggestions": ["建议1", "建议2", "建议3"],
+  "questionFeedback": [
+    {
+      "sequence": <interviewer消息的sequence，整数>,
+      "question": "<问题原文>",
+      "answerSummary": "<候选人回答的简要概括，50字以内>",
+      "score": <0-100，该题得分>,
+      "feedback": "<该题的具体改进建议，100字以内>"
+    }
+  ],
+  "summary": "<200-500字的总体评价和改进方向>"
+}
+
+评分标准：
+- 60分以下：不合格，存在明显短板
+- 60-74分：基本合格，有提升空间
+- 75-89分：良好，表现不错
+- 90-100分：优秀，表现出色
+
+strengths 数组 2-5 条，weaknesses 数组 2-5 条，suggestions 数组 3-5 条。
+questionFeedback 数组长度必须等于 {question_count}，每条对应一个 interviewer 问题。
