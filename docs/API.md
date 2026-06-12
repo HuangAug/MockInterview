@@ -765,6 +765,13 @@ curl -X POST http://localhost:8000/api/v1/auth/register \
 }
 ```
 
+**Errors：**
+
+| code | 条件 |
+|------|------|
+| 40903 | status 不在 pending/in_progress |
+| 40901 | status=in_progress 且 question_count > 0（应使用 complete） |
+
 ---
 
 ### 3.15 POST /interviews/{id}/transcribe
