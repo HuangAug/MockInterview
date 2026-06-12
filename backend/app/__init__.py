@@ -1,0 +1,1 @@
+"""MockInterview AI — FastAPI backend."""
