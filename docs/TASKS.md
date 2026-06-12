@@ -196,8 +196,8 @@
 | **参考** | DATABASE §7 |
 
 **验收标准：**
-- [ ] `alembic upgrade head` 后 job_roles 表有 8 条记录
-- [ ] UUID 与 DATABASE.md §7.1 一致
+- [x] `alembic upgrade head` 后 job_roles 表有 8 条记录
+- [x] UUID 与 DATABASE.md §7.1 一致
 
 ---
 
