@@ -175,7 +175,7 @@ flowchart TD
 | AUTH-06 | 登录成功返回 `accessToken`（有效期 15 分钟）和 `refreshToken`（有效期 7 天） |
 | AUTH-07 | 登录失败（邮箱不存在或密码错误）统一返回「邮箱或密码错误」，不泄露邮箱是否存在 |
 | AUTH-08 | Access Token 载荷含 `sub`（user_id UUID）、`exp`、`iat` |
-| AUTH-09 | Refresh Token 为 64 字节随机 hex，哈希后存 DB |
+| AUTH-09 | Refresh Token 为 64 bytes 随机 hex（= 128 hex 字符），SHA-256 哈希后存 DB |
 
 #### 验收标准
 
@@ -312,7 +312,7 @@ flowchart TD
 - [ ] start 返回第一个 interviewer 消息
 - [ ] 提交回答后返回 candidate 消息 + 下一题（或 isFinished=true）
 - [ ] 第 8 题回答后 isFinished=true，无 nextQuestion
-- [ ] 非 in_progress 状态提交回答返回 409
+- [ ] 非 in_progress 状态提交回答返回 409，错误码 `40901`
 
 ---
 
