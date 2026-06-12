@@ -7,12 +7,17 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.router import router as v1_router
 from app.core.config import settings
+from app.core.exceptions import AppException, app_exception_handler
+from app.core.logging import LoggingMiddleware, setup_logging
+
+setup_logging(settings.log_level)
 
 app = FastAPI(
     title="MockInterview AI",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
+    debug=False,
 )
 
 app.add_middleware(
@@ -22,6 +27,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_exception_handler(AppException, app_exception_handler)  # type: ignore[arg-type]
+
+app.add_middleware(LoggingMiddleware)
 
 app.include_router(v1_router)
 
