@@ -7,6 +7,8 @@ import 'package:mobile/features/auth/presentation/pages/login_page.dart';
 import 'package:mobile/features/auth/presentation/pages/register_page.dart';
 import 'package:mobile/features/home/presentation/pages/home_page.dart';
 import 'package:mobile/features/home/presentation/pages/splash_page.dart';
+import 'package:mobile/features/interview/presentation/session/interview_session_bloc.dart';
+import 'package:mobile/features/interview/presentation/session/interview_session_page.dart';
 import 'package:mobile/features/interview/presentation/setup/interview_setup_bloc.dart';
 import 'package:mobile/features/interview/presentation/setup/interview_setup_page.dart';
 
@@ -47,13 +49,29 @@ class AppRouter {
       ),
       GoRoute(
         path: '/interview/session/:id',
+        builder: (context, state) => BlocProvider(
+          create: (context) => InterviewSessionBloc(
+            interviewRepository: context.read(),
+          ),
+          child: InterviewSessionPage(
+            sessionId: state.pathParameters['id']!,
+          ),
+        ),
+      ),
+      GoRoute(
+        path: '/interview/report/:id',
         builder: (context, state) {
-          // T024 will implement this page
+          // T033 will implement this page
           return Scaffold(
-            appBar: AppBar(title: const Text('面试')),
-            body: Center(
-              child: Text(
-                'Session: ${state.pathParameters['id']}',
+            appBar: AppBar(title: const Text('报告')),
+            body: const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('报告生成中，请稍候...'),
+                ],
               ),
             ),
           );
