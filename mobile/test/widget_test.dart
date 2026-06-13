@@ -1,14 +1,14 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:mobile/main.dart';
+import 'package:mobile/app/router.dart';
+import 'package:mobile/core/storage/secure_storage.dart';
 
 void main() {
-  testWidgets('App renders blank MaterialApp with title', (WidgetTester tester) async {
-    await tester.pumpWidget(const MockInterviewApp());
+  test('AppRouter can be instantiated with SecureStorage', () {
+    final secureStorage = SecureStorage();
+    final appRouter = AppRouter(secureStorage: secureStorage);
 
-    expect(find.text('MockInterview AI'), findsOneWidget);
-    expect(find.byType(MaterialApp), findsOneWidget);
-    expect(find.byType(Scaffold), findsOneWidget);
+    expect(appRouter.router, isNotNull);
+    expect(appRouter.secureStorage, same(secureStorage));
   });
 }

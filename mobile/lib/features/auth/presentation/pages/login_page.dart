@@ -1,6 +1,7 @@
 // Login page — email + password form with validation.
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mobile/features/auth/presentation/bloc/auth_bloc.dart';
 
 class LoginPage extends StatefulWidget {
@@ -91,6 +92,8 @@ class _LoginPageState extends State<LoginPage> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text(state.message)),
                         );
+                      } else if (state is AuthAuthenticated) {
+                        context.go('/home');
                       }
                     },
                     builder: (context, state) {
@@ -109,7 +112,7 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 16),
                   TextButton(
                     onPressed: () {
-                      Navigator.of(context).pushNamed('/register');
+                      context.push('/register');
                     },
                     child: const Text('还没有账号？去注册'),
                   ),

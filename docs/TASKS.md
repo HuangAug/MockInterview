@@ -356,9 +356,9 @@
 - InterviewSetupPage：岗位 Grid + 难度 Segmented + 模式选择 + 创建会话
 
 **验收标准：**
-- [ ] 未登录跳转 /login
-- [ ] 设置页展示 8 个岗位
-- [ ] 三项全选后「开始面试」按钮可点击，点击后跳转至 session 页（POST /interviews 由 T020 实现）
+- [x] 未登录跳转 /login
+- [x] 设置页展示 8 个岗位
+- [x] 三项全选后「开始面试」按钮可点击，点击后跳转至 session 页（POST /interviews 由 T020 实现）
 
 ---
 
