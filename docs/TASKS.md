@@ -335,9 +335,9 @@
 | **参考** | API §3.5-3.6, PRD USER-01~04 |
 
 **验收标准：**
-- [ ] GET /users/me 返回 UserResponse
-- [ ] PATCH /users/me 可更新 displayName, targetJobRoleId
-- [ ] 无效 targetJobRoleId 返回 40402
+- [x] GET /users/me 返回 UserResponse
+- [x] PATCH /users/me 可更新 displayName, targetJobRoleId
+- [x] 无效 targetJobRoleId 返回 40402
 
 ---
 
