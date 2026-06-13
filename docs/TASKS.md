@@ -321,8 +321,8 @@
 | **参考** | API §3.7, PRD JOB-01~03 |
 
 **验收标准：**
-- [ ] GET /job-roles 返回 8 条，按 sortOrder 升序
-- [ ] 仅返回 is_active=true
+- [x] GET /job-roles 返回 8 条，按 sortOrder 升序
+- [x] 仅返回 is_active=true
 
 ---
 
