@@ -6,12 +6,16 @@ import uuid as _uuid
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, File, Query, UploadFile
+from fastapi.responses import Response as FastAPIResponse
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user
 from app.core.config import settings
 from app.core.exceptions import AppException
 from app.db.session import get_db
+from app.models.interview_message import InterviewMessage
+from app.models.interview_session import InterviewSession
 from app.models.user import User
 from app.schemas.interview import (
     CreateInterviewRequest,
@@ -340,3 +344,80 @@ async def transcribe_audio(
 
     audio_url = f"/api/v1/interviews/{session_id}/audio/{unique_name}"
     return _success(data={"text": text, "audioUrl": audio_url})
+
+
+# ---------------------------------------------------------------------------
+# T028 — GET /interviews/{id}/messages/{messageId}/tts — TTS audio
+# ---------------------------------------------------------------------------
+
+
+@router.get("/{session_id}/messages/{message_id}/tts")
+async def get_message_tts(
+    session_id: str,
+    message_id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> FastAPIResponse:
+    """GET /interviews/{id}/messages/{messageId}/tts — return TTS mp3 audio."""
+    try:
+        sid = UUID(session_id)
+        mid = UUID(message_id)
+    except ValueError:
+        raise AppException(
+            code=40403, message="面试会话不存在", status_code=404
+        )
+
+    # Load session and validate ownership
+    result = await db.execute(
+        select(InterviewSession).where(InterviewSession.id == sid)
+    )
+    session = result.scalar_one_or_none()
+    if session is None:
+        raise AppException(
+            code=40403, message="面试会话不存在", status_code=404
+        )
+    if session.user_id != current_user.id:
+        raise AppException(
+            code=40301, message="无权访问该资源", status_code=403
+        )
+
+    # Validate voice mode
+    if session.mode != "voice":
+        raise AppException(
+            code=40901, message="操作与当前状态冲突", status_code=409
+        )
+
+    # Load message and validate role
+    result = await db.execute(
+        select(InterviewMessage).where(
+            InterviewMessage.id == mid,
+            InterviewMessage.session_id == sid,
+        )
+    )
+    message = result.scalar_one_or_none()
+    if message is None:
+        raise AppException(
+            code=40403, message="面试会话不存在", status_code=404
+        )
+    if message.role != "interviewer":
+        raise AppException(
+            code=40901, message="操作与当前状态冲突", status_code=409
+        )
+
+    # Check TTS cache
+    tts_dir = os.path.join(settings.upload_dir, "tts", session_id)
+    tts_path = os.path.join(tts_dir, f"{message_id}.mp3")
+
+    if not os.path.exists(tts_path):
+        # Generate TTS via OpenAI
+        openai_svc = OpenAIService()
+        audio_bytes = await openai_svc.synthesize_speech(message.content)
+
+        os.makedirs(tts_dir, exist_ok=True)
+        with open(tts_path, "wb") as f:
+            f.write(audio_bytes)
+
+    with open(tts_path, "rb") as f:
+        audio_data = f.read()
+
+    return FastAPIResponse(content=audio_data, media_type="audio/mpeg")

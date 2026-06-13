@@ -202,6 +202,57 @@ class OpenAIService:
             status_code=502,
         ) from last_error
 
+    async def synthesize_speech(self, text: str) -> bytes:
+        """Convert text to speech using OpenAI TTS API.
+
+        Args:
+            text: The text to synthesize.
+
+        Returns:
+            MP3 audio bytes.
+
+        Raises:
+            AppException(50201): If TTS API call fails after retries.
+        """
+        last_error: Exception | None = None
+
+        for attempt in range(self._max_retries + 1):
+            try:
+                response = await self._client.audio.speech.create(
+                    model=settings.openai_tts_model,
+                    voice=settings.openai_tts_voice,
+                    input=text,
+                    response_format="mp3",
+                )
+                return response.content
+
+            except (
+                openai.APITimeoutError,
+                openai.RateLimitError,
+                openai.APIError,
+            ) as e:
+                last_error = e
+                if attempt < self._max_retries:
+                    logger.warning(
+                        "TTS attempt %d/%d failed: %s. Retrying...",
+                        attempt + 1,
+                        self._max_retries + 1,
+                        e,
+                    )
+                    await asyncio.sleep(1)
+                else:
+                    logger.error(
+                        "TTS all %d attempts failed: %s",
+                        self._max_retries + 1,
+                        e,
+                    )
+
+        raise AppException(
+            code=50201,
+            message="AI 服务暂时不可用",
+            status_code=502,
+        ) from last_error
+
     async def _chat_completion(
         self,
         system_prompt: str,
