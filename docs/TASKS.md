@@ -505,9 +505,9 @@
 - isFinished 时自动 complete
 
 **验收标准：**
-- [ ] 文字模式完整 Q&A 流程可跑通
-- [ ] 结束确认 Dialog
-- [ ] 完成后跳转报告轮询页
+- [x] 文字模式完整 Q&A 流程可跑通
+- [x] 结束确认 Dialog
+- [x] 完成后跳转报告轮询页
 
 ---
 
@@ -538,9 +538,9 @@
 | **参考** | CODING_STANDARD |
 
 **验收标准：**
-- [ ] 测试状态机转换（pending→in_progress→completed）
-- [ ] 测试非法状态抛异常
-- [ ] `pytest` 全部通过
+- [x] 测试状态机转换（pending→in_progress→completed）
+- [x] 测试非法状态抛异常
+- [x] `pytest` 全部通过
 
 ---
 
@@ -555,10 +555,10 @@
 | **参考** | API §3.15, PRD VOICE-01~04 |
 
 **验收标准：**
-- [ ] POST /transcribe 接受 multipart audio
-- [ ] 返回 text + audioUrl
-- [ ] >25MB 返回 40003
-- [ ] 不支持格式返回 40004
+- [x] POST /transcribe 接受 multipart audio
+- [x] 返回 text + audioUrl
+- [x] >25MB 返回 40003
+- [x] 不支持格式返回 40004
 
 ---
 
@@ -571,9 +571,9 @@
 | **参考** | API §3.18, PRD VOICE-05~07 |
 
 **验收标准：**
-- [ ] GET /messages/{messageId}/tts 返回 audio/mpeg
-- [ ] 仅 voice 模式 + interviewer 消息可用
-- [ ] TTS 文件缓存至 uploads/tts/
+- [x] GET /messages/{messageId}/tts 返回 audio/mpeg
+- [x] 仅 voice 模式 + interviewer 消息可用
+- [x] TTS 文件缓存至 uploads/tts/
 
 ---
 
@@ -607,9 +607,9 @@
 | **参考** | ARCHITECTURE §6.4, §7.1 |
 
 **验收标准：**
-- [ ] 返回 dict 含全部 ReportResponse 字段
-- [ ] JSON 解析失败抛异常
-- [ ] 分数范围校验 0-100
+- [x] 返回 dict 含全部 ReportResponse 字段
+- [x] JSON 解析失败抛异常
+- [x] 分数范围校验 0-100
 
 ---
 
@@ -627,9 +627,9 @@
 - 成功 → report_status=ready; 失败 → failed
 
 **验收标准：**
-- [ ] complete 后 report_status: pending→generating→ready
-- [ ] interview_reports 表写入正确
-- [ ] 失败时 report_status=failed
+- [x] complete 后 report_status: pending→generating→ready
+- [x] interview_reports 表写入正确
+- [x] 失败时 report_status=failed
 
 ---
 
@@ -677,9 +677,9 @@
 | **参考** | CODING_STANDARD |
 
 **验收标准：**
-- [ ] mock OpenAI 返回固定 JSON
-- [ ] 验证 report 写入 DB
-- [ ] 验证 report_status 流转
+- [x] mock OpenAI 返回固定 JSON
+- [x] 验证 report 写入 DB
+- [x] 验证 report_status 流转
 
 ---
 

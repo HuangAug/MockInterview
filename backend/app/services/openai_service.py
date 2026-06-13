@@ -130,6 +130,229 @@ class OpenAIService:
 
         return (response, False)
 
+    async def generate_report(
+        self,
+        job_role_name: str,
+        difficulty: str,
+        question_count: int,
+        messages: list[InterviewMessage],
+    ) -> dict:
+        """Generate an interview evaluation report via OpenAI.
+
+        Args:
+            job_role_name: Display name of the job role.
+            difficulty: Enum value — "junior", "mid", or "senior".
+            question_count: Number of questions asked.
+            messages: All messages in the session.
+
+        Returns:
+            Parsed report dict with camelCase field names.
+
+        Raises:
+            AppException(50201): If OpenAI call fails or JSON is invalid.
+        """
+        difficulty_label = _DIFFICULTY_LABELS[difficulty]
+        system_prompt = _load_prompt("interview_system_prompt.txt").format(
+            job_role_name=job_role_name,
+            difficulty_label=difficulty_label,
+            max_questions=question_count,
+        )
+        conversation_history = format_conversation_history(messages)
+        user_prompt = _load_prompt("interview_report_prompt.txt").format(
+            job_role_name=job_role_name,
+            difficulty_label=difficulty_label,
+            conversation_history=conversation_history,
+            question_count=question_count,
+        )
+
+        report = await self._chat_completion_json(
+            system_prompt, user_prompt
+        )
+
+        # Validate required fields
+        required_fields = [
+            "overallScore",
+            "communicationScore",
+            "technicalScore",
+            "problemSolvingScore",
+            "structureScore",
+            "strengths",
+            "weaknesses",
+            "suggestions",
+            "questionFeedback",
+            "summary",
+        ]
+        for field in required_fields:
+            if field not in report:
+                logger.error("Report missing required field: %s", field)
+                raise AppException(
+                    code=50201,
+                    message="AI 服务暂时不可用",
+                    status_code=502,
+                )
+
+        # Validate score ranges (0-100)
+        score_fields = [
+            "overallScore",
+            "communicationScore",
+            "technicalScore",
+            "problemSolvingScore",
+            "structureScore",
+        ]
+        for field in score_fields:
+            score = report[field]
+            if not isinstance(score, (int, float)) or score < 0 or score > 100:
+                logger.error(
+                    "Report score out of range: %s=%s", field, score
+                )
+                raise AppException(
+                    code=50201,
+                    message="AI 服务暂时不可用",
+                    status_code=502,
+                )
+
+        # Validate questionFeedback scores
+        for item in report.get("questionFeedback", []):
+            qf_score = item.get("score")
+            if (
+                not isinstance(qf_score, (int, float))
+                or qf_score < 0
+                or qf_score > 100
+            ):
+                logger.error(
+                    "QuestionFeedback score out of range: %s", qf_score
+                )
+                raise AppException(
+                    code=50201,
+                    message="AI 服务暂时不可用",
+                    status_code=502,
+                )
+
+        return report
+
+    async def transcribe_audio(self, file_path: str) -> str:
+        """Transcribe an audio file using Whisper API.
+
+        Args:
+            file_path: Path to the audio file on disk.
+
+        Returns:
+            Transcribed text string.
+
+        Raises:
+            AppException(50201): If Whisper API call fails after retries.
+        """
+        audio_path = Path(file_path)
+        ext = audio_path.suffix.lstrip(".")
+        mime_map = {
+            "webm": "audio/webm",
+            "mp3": "audio/mpeg",
+            "mp4": "audio/mp4",
+            "m4a": "audio/mp4",
+            "wav": "audio/wav",
+        }
+        content_type = mime_map.get(ext, "audio/mpeg")
+
+        last_error: Exception | None = None
+        for attempt in range(self._max_retries + 1):
+            try:
+                with open(file_path, "rb") as f:
+                    audio_bytes = f.read()
+
+                transcript = await self._client.audio.transcriptions.create(
+                    model=settings.openai_whisper_model,
+                    file=(audio_path.name, audio_bytes, content_type),
+                    language="zh",
+                )
+                text = transcript.text.strip()
+                if not text:
+                    raise AppException(
+                        code=50201,
+                        message="AI 服务暂时不可用",
+                        status_code=502,
+                    )
+                return text
+
+            except AppException:
+                raise
+            except (
+                openai.APITimeoutError,
+                openai.RateLimitError,
+                openai.APIError,
+            ) as e:
+                last_error = e
+                if attempt < self._max_retries:
+                    logger.warning(
+                        "Whisper attempt %d/%d failed: %s. Retrying...",
+                        attempt + 1,
+                        self._max_retries + 1,
+                        e,
+                    )
+                    await asyncio.sleep(1)
+                else:
+                    logger.error(
+                        "Whisper all %d attempts failed: %s",
+                        self._max_retries + 1,
+                        e,
+                    )
+
+        raise AppException(
+            code=50201,
+            message="AI 服务暂时不可用",
+            status_code=502,
+        ) from last_error
+
+    async def synthesize_speech(self, text: str) -> bytes:
+        """Convert text to speech using OpenAI TTS API.
+
+        Args:
+            text: The text to synthesize.
+
+        Returns:
+            MP3 audio bytes.
+
+        Raises:
+            AppException(50201): If TTS API call fails after retries.
+        """
+        last_error: Exception | None = None
+
+        for attempt in range(self._max_retries + 1):
+            try:
+                response = await self._client.audio.speech.create(
+                    model=settings.openai_tts_model,
+                    voice=settings.openai_tts_voice,
+                    input=text,
+                    response_format="mp3",
+                )
+                return response.content
+
+            except (
+                openai.APITimeoutError,
+                openai.RateLimitError,
+                openai.APIError,
+            ) as e:
+                last_error = e
+                if attempt < self._max_retries:
+                    logger.warning(
+                        "TTS attempt %d/%d failed: %s. Retrying...",
+                        attempt + 1,
+                        self._max_retries + 1,
+                        e,
+                    )
+                    await asyncio.sleep(1)
+                else:
+                    logger.error(
+                        "TTS all %d attempts failed: %s",
+                        self._max_retries + 1,
+                        e,
+                    )
+
+        raise AppException(
+            code=50201,
+            message="AI 服务暂时不可用",
+            status_code=502,
+        ) from last_error
+
     async def _chat_completion(
         self,
         system_prompt: str,
