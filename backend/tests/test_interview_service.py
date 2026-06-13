@@ -2,12 +2,11 @@
 
 import uuid
 from datetime import UTC, datetime
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
 from app.core.exceptions import AppException
-from app.models.interview_message import InterviewMessage
 from app.models.interview_session import InterviewSession
 from app.models.job_role import JobRole
 from app.services.interview_service import InterviewService
@@ -191,12 +190,6 @@ class TestSubmitAnswer:
         )
 
         session = _mock_session(status="in_progress", question_count=1)
-        candidate_msg = InterviewMessage(
-            session_id=SESSION_UUID, role="candidate", content="我叫张三", sequence=2,
-        )
-        interviewer_msg = InterviewMessage(
-            session_id=SESSION_UUID, role="interviewer", content="你有什么项目经验？", sequence=3,
-        )
 
         # Mock the max sequence query and messages query
         max_seq_result = MagicMock()
@@ -354,7 +347,7 @@ class TestCompleteSession:
         mock_db.flush = AsyncMock()
 
         svc = InterviewService(mock_db)
-        result = await svc.complete_session(SESSION_UUID, USER_UUID)
+        await svc.complete_session(SESSION_UUID, USER_UUID)
 
         # Verify update was called
         assert mock_db.execute.call_count == 3
@@ -420,7 +413,7 @@ class TestCancelSession:
         mock_db.flush = AsyncMock()
 
         svc = InterviewService(mock_db)
-        result = await svc.cancel_session(SESSION_UUID, USER_UUID)
+        await svc.cancel_session(SESSION_UUID, USER_UUID)
 
         assert mock_db.execute.call_count == 3
 
@@ -439,7 +432,7 @@ class TestCancelSession:
         mock_db.flush = AsyncMock()
 
         svc = InterviewService(mock_db)
-        result = await svc.cancel_session(SESSION_UUID, USER_UUID)
+        await svc.cancel_session(SESSION_UUID, USER_UUID)
 
         assert mock_db.execute.call_count == 3
 
