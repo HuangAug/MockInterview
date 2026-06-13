@@ -241,9 +241,9 @@
 - `decode_access_token()` — 验证 JWT
 
 **验收标准：**
-- [ ] 密码哈希/验证正确
-- [ ] JWT 解码可获取 user_id
-- [ ] refresh token 为 64 字符 hex
+- [x] 密码哈希/验证正确
+- [x] JWT 解码可获取 user_id
+- [x] refresh token 为 64 字符 hex
 
 ---
 
@@ -262,10 +262,10 @@
 - `logout(refresh_token)` → revoke
 
 **验收标准：**
-- [ ] 重复邮箱注册抛 40902
-- [ ] 弱密码抛 40002
-- [ ] 错误登录抛 40102
-- [ ] refresh rotation 正确
+- [x] 重复邮箱注册抛 40902
+- [x] 弱密码抛 40002
+- [x] 错误登录抛 40102
+- [x] refresh rotation 正确
 
 ---
 
@@ -283,8 +283,8 @@
 - 注册到 `router.py`
 
 **验收标准：**
-- [ ] 4 个端点响应格式与 API.md 一致
-- [ ] `get_current_user` 无效 token 返回 40101
+- [x] 4 个端点响应格式与 API.md 一致
+- [x] `get_current_user` 无效 token 返回 40101
 
 ---
 
@@ -304,9 +304,9 @@
 - LoginPage, RegisterPage UI（PRD §6.2 规格）
 
 **验收标准：**
-- [ ] 可注册、登录、token 持久化
-- [ ] 401 时自动 refresh 并重试
-- [ ] 表单校验：邮箱格式、密码规则、密码一致
+- [x] 可注册、登录、token 持久化
+- [x] 401 时自动 refresh 并重试
+- [x] 表单校验：邮箱格式、密码规则、密码一致
 
 ---
 
@@ -378,8 +378,8 @@
 - `_load_prompt()`, `_format_conversation_history()`
 
 **验收标准：**
-- [ ] 4 个 prompt 文件内容与 ARCHITECTURE §6 完全一致
-- [ ] retry 2 次后抛 50201
+- [x] 4 个 prompt 文件内容与 ARCHITECTURE §6 完全一致
+- [x] retry 2 次后抛 50201
 
 ---
 
@@ -397,9 +397,9 @@
 - difficulty 映射 difficulty_label
 
 **验收标准：**
-- [ ] 首题返回非空字符串
-- [ ] 下一题在 question_count >= max 时 is_finished=True
-- [ ] LLM 输出 `[INTERVIEW_COMPLETE]` 时 is_finished=True
+- [x] 首题返回非空字符串
+- [x] 下一题在 question_count >= max 时 is_finished=True
+- [x] LLM 输出 `[INTERVIEW_COMPLETE]` 时 is_finished=True
 
 ---
 
@@ -524,8 +524,8 @@
 - InterviewRepository：全部 interview API 调用
 
 **验收标准：**
-- [ ] Models 字段与 API §2 camelCase 一致
-- [ ] JSON 序列化/反序列化正确
+- [x] Models 字段与 API §2 camelCase 一致
+- [x] JSON 序列化/反序列化正确
 
 ---
 
