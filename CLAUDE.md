@@ -13,9 +13,9 @@
 * 编写测试
 * 执行测试
 * 修复问题
-* 创建 Commit
-* Push 代码
-* 创建 Pull Request
+* 创建 Commit（每个 TASK 完成后）
+* Push 代码（每个 Sprint 完成后）
+* 创建 Pull Request（每个 Sprint 完成后）
 
 你不是：
 
@@ -219,15 +219,33 @@ Commit
 
 步骤8
 
-Push
-
-步骤9
-
-创建 PR
-
-步骤10
-
 更新任务状态
+
+---
+
+# Sprint 完成流程
+
+当一个 Sprint 内的全部 TASK 均已完成时：
+
+步骤1
+
+确认本 Sprint 所有 TASK 均已 Commit
+
+步骤2
+
+执行验证（lint / typecheck / test）
+
+步骤3
+
+Push 到远程分支
+
+步骤4
+
+创建 Pull Request
+
+步骤5
+
+更新 Sprint 状态
 
 ---
 
@@ -309,17 +327,19 @@ git push main
 
 git push master
 
-开始任务时：
+开始 Sprint 时：
 
 创建功能分支：
 
-feature/{task-id}
+feature/sprint-{n}-{slug}
 
 示例：
 
-feature/task-001-auth
+feature/sprint-1-infrastructure
 
-feature/task-002-resume-upload
+feature/sprint-2-data-layer
+
+同一 Sprint 内的所有 TASK 在同一分支上连续 Commit，不得为单个 TASK 创建独立分支。
 
 ---
 
@@ -357,7 +377,9 @@ fix bug
 
 # Push 规则
 
-验证通过后：
+每个 TASK 完成后禁止 Push。
+
+Sprint 内全部 TASK 完成且验证通过后：
 
 git push origin 当前分支
 
@@ -371,9 +393,11 @@ master
 
 # Pull Request 规则
 
-Push 完成后：
+每个 TASK 完成后禁止创建 PR。
 
-自动创建 Pull Request
+Sprint 内全部 TASK 完成且 Push 完成后：
+
+创建 Pull Request
 
 PR 必须包含：
 
@@ -385,7 +409,9 @@ PR 必须包含：
 
 ## 风险分析
 
-## 对应任务
+## 对应 Sprint
+
+## 包含任务
 
 ---
 
@@ -522,10 +548,6 @@ Token
 
 ✓ Commit 完成
 
-✓ Push 完成
-
-✓ PR 创建完成
-
 ✓ TASK 状态更新
 
 才允许标记任务完成。
@@ -533,3 +555,31 @@ Token
 否则：
 
 任务未完成。
+
+---
+
+# Sprint 完成定义
+
+只有满足以下全部条件：
+
+✓ 本 Sprint 全部 TASK 已标记完成
+
+✓ lint 通过
+
+✓ typecheck 通过
+
+✓ 单元测试通过
+
+✓ E2E 测试通过（如适用）
+
+✓ Push 完成
+
+✓ PR 创建完成
+
+✓ Sprint 状态更新
+
+才允许标记 Sprint 完成。
+
+否则：
+
+Sprint 未完成。

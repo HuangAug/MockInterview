@@ -43,20 +43,51 @@
 ```
 1. 阅读 TASKS.md 中当前任务 ID 的完整描述
 2. 阅读「参考」列指向的文档章节
-3. 创建 Git 分支 feature/T{id}-{slug}
-4. 仅修改「产出」列列出的文件（及必要的 import/注册）
-5. 运行 lint / test
-6. 逐条核对「验收标准」
-7. 全部通过后，进入下一个任务 ID
+3. 仅修改「产出」列列出的文件（及必要的 import/注册）
+4. 运行 lint / test
+5. 逐条核对「验收标准」
+6. Commit（格式见 CODING_STANDARD.md §1.1）
+7. 更新任务状态
+8. 进入下一个任务 ID
 ```
 
-### 3.2 任务状态追踪
+**注意：** 每个 TASK 完成后仅 Commit，禁止 Push 或创建 PR。
+
+### 3.2 Sprint 完成流程
+
+Sprint 划分见 [DEVELOPMENT_PLAN.md](./DEVELOPMENT_PLAN.md) §4。当一个 Sprint 内的全部 TASK 均已完成时：
+
+```
+1. 确认本 Sprint 所有 TASK 均已 Commit
+2. 执行验证（lint / typecheck / test）
+3. git push origin 当前分支
+4. 创建 Pull Request
+5. 更新 Sprint 状态
+```
+
+**开始 Sprint 时：**
+
+- 创建分支 `feature/sprint-{n}-{slug}`（如 `feature/sprint-1-infrastructure`）
+- 同一 Sprint 内所有 TASK 在同一分支上连续 Commit
+
+**PR 必须包含：**
+
+- 功能说明
+- 修改文件
+- 测试结果
+- 风险分析
+- 对应 Sprint
+- 包含任务
+
+完整 Git 规则见 [CLAUDE.md](../CLAUDE.md)。
+
+### 3.3 任务状态追踪
 
 - 当前任务 ID 应在 commit message 中体现
 - 不要并行执行多个任务
 - 不要回退修改已完成任务的验收标准
 
-### 3.3 遇到以下情况必须停止并提问
+### 3.4 遇到以下情况必须停止并提问
 
 - 文档中存在矛盾（如 API 与 DATABASE 字段不一致）
 - 当前任务需要修改文档未列出的文件且无法避免
@@ -341,3 +372,4 @@ T039 → T040
 | 版本 | 日期 | 变更 |
 |------|------|------|
 | 1.0.0 | 2026-06-12 | 初始版本 |
+| 1.0.1 | 2026-06-12 | Git 工作流改为 Sprint 级 Push/PR |

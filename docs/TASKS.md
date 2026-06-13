@@ -26,7 +26,9 @@
 2. 一次只做一个任务
 3. 完成后自检验收标准，再开始下一项
 4. 不得自行添加 PRD 外的功能
-5. Git 分支命名：`feature/T{id}-{slug}`
+5. 开始 Sprint 时创建分支：`feature/sprint-{n}-{slug}`（同一 Sprint 内所有 TASK 共用，不得为单个 TASK 创建独立分支）
+6. 每个 TASK 完成后仅 **Commit**，禁止 Push 或创建 PR
+7. Sprint 内全部 TASK 完成后，执行验证、Push 并创建 PR（详见 [CLAUDE.md](../CLAUDE.md) 与 [DEVELOPMENT_PLAN.md](./DEVELOPMENT_PLAN.md)）
 
 ---
 
@@ -196,8 +198,8 @@
 | **参考** | DATABASE §7 |
 
 **验收标准：**
-- [ ] `alembic upgrade head` 后 job_roles 表有 8 条记录
-- [ ] UUID 与 DATABASE.md §7.1 一致
+- [x] `alembic upgrade head` 后 job_roles 表有 8 条记录
+- [x] UUID 与 DATABASE.md §7.1 一致
 
 ---
 
@@ -215,9 +217,9 @@
 - 所有 Response schema 使用 camelCase alias（`model_config = ConfigDict(populate_by_name=True, alias_generator=to_camel)`）
 
 **验收标准：**
-- [ ] Model 字段名、类型、关系与 DATABASE.md 一致
-- [ ] Schema 字段与 API.md §2 一致
-- [ ] `from_attributes = True` 配置正确
+- [x] Model 字段名、类型、关系与 DATABASE.md 一致
+- [x] Schema 字段与 API.md §2 一致
+- [x] `from_attributes = True` 配置正确
 
 ---
 
@@ -239,9 +241,9 @@
 - `decode_access_token()` — 验证 JWT
 
 **验收标准：**
-- [ ] 密码哈希/验证正确
-- [ ] JWT 解码可获取 user_id
-- [ ] refresh token 为 64 字符 hex
+- [x] 密码哈希/验证正确
+- [x] JWT 解码可获取 user_id
+- [x] refresh token 为 64 字符 hex
 
 ---
 
@@ -260,10 +262,10 @@
 - `logout(refresh_token)` → revoke
 
 **验收标准：**
-- [ ] 重复邮箱注册抛 40902
-- [ ] 弱密码抛 40002
-- [ ] 错误登录抛 40102
-- [ ] refresh rotation 正确
+- [x] 重复邮箱注册抛 40902
+- [x] 弱密码抛 40002
+- [x] 错误登录抛 40102
+- [x] refresh rotation 正确
 
 ---
 
@@ -281,8 +283,8 @@
 - 注册到 `router.py`
 
 **验收标准：**
-- [ ] 4 个端点响应格式与 API.md 一致
-- [ ] `get_current_user` 无效 token 返回 40101
+- [x] 4 个端点响应格式与 API.md 一致
+- [x] `get_current_user` 无效 token 返回 40101
 
 ---
 
@@ -302,9 +304,9 @@
 - LoginPage, RegisterPage UI（PRD §6.2 规格）
 
 **验收标准：**
-- [ ] 可注册、登录、token 持久化
-- [ ] 401 时自动 refresh 并重试
-- [ ] 表单校验：邮箱格式、密码规则、密码一致
+- [x] 可注册、登录、token 持久化
+- [x] 401 时自动 refresh 并重试
+- [x] 表单校验：邮箱格式、密码规则、密码一致
 
 ---
 
@@ -376,8 +378,8 @@
 - `_load_prompt()`, `_format_conversation_history()`
 
 **验收标准：**
-- [ ] 4 个 prompt 文件内容与 ARCHITECTURE §6 完全一致
-- [ ] retry 2 次后抛 50201
+- [x] 4 个 prompt 文件内容与 ARCHITECTURE §6 完全一致
+- [x] retry 2 次后抛 50201
 
 ---
 
@@ -395,9 +397,9 @@
 - difficulty 映射 difficulty_label
 
 **验收标准：**
-- [ ] 首题返回非空字符串
-- [ ] 下一题在 question_count >= max 时 is_finished=True
-- [ ] LLM 输出 `[INTERVIEW_COMPLETE]` 时 is_finished=True
+- [x] 首题返回非空字符串
+- [x] 下一题在 question_count >= max 时 is_finished=True
+- [x] LLM 输出 `[INTERVIEW_COMPLETE]` 时 is_finished=True
 
 ---
 
@@ -522,8 +524,8 @@
 - InterviewRepository：全部 interview API 调用
 
 **验收标准：**
-- [ ] Models 字段与 API §2 camelCase 一致
-- [ ] JSON 序列化/反序列化正确
+- [x] Models 字段与 API §2 camelCase 一致
+- [x] JSON 序列化/反序列化正确
 
 ---
 
@@ -830,3 +832,4 @@ flowchart TD
 | 版本 | 日期 | 变更 |
 |------|------|------|
 | 1.0.0 | 2026-06-12 | 初始 40 项任务 |
+| 1.0.1 | 2026-06-12 | §1.2 Git 工作流改为 Sprint 级 Push/PR |
