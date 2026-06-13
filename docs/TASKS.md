@@ -321,8 +321,8 @@
 | **参考** | API §3.7, PRD JOB-01~03 |
 
 **验收标准：**
-- [ ] GET /job-roles 返回 8 条，按 sortOrder 升序
-- [ ] 仅返回 is_active=true
+- [x] GET /job-roles 返回 8 条，按 sortOrder 升序
+- [x] 仅返回 is_active=true
 
 ---
 
@@ -335,9 +335,9 @@
 | **参考** | API §3.5-3.6, PRD USER-01~04 |
 
 **验收标准：**
-- [ ] GET /users/me 返回 UserResponse
-- [ ] PATCH /users/me 可更新 displayName, targetJobRoleId
-- [ ] 无效 targetJobRoleId 返回 40402
+- [x] GET /users/me 返回 UserResponse
+- [x] PATCH /users/me 可更新 displayName, targetJobRoleId
+- [x] 无效 targetJobRoleId 返回 40402
 
 ---
 
@@ -356,9 +356,9 @@
 - InterviewSetupPage：岗位 Grid + 难度 Segmented + 模式选择 + 创建会话
 
 **验收标准：**
-- [ ] 未登录跳转 /login
-- [ ] 设置页展示 8 个岗位
-- [ ] 三项全选后「开始面试」按钮可点击，点击后跳转至 session 页（POST /interviews 由 T020 实现）
+- [x] 未登录跳转 /login
+- [x] 设置页展示 8 个岗位
+- [x] 三项全选后「开始面试」按钮可点击，点击后跳转至 session 页（POST /interviews 由 T020 实现）
 
 ---
 
@@ -420,9 +420,9 @@
 - 所有状态校验按 PRD 规则
 
 **验收标准：**
-- [ ] 状态转换与 ARCHITECTURE §3.1 一致
-- [ ] sequence 规则：interviewer 奇数, candidate 偶数
-- [ ] 非法状态操作抛 40901/40903
+- [x] 状态转换与 ARCHITECTURE §3.1 一致
+- [x] sequence 规则：interviewer 奇数, candidate 偶数
+- [x] 非法状态操作抛 40901/40903
 
 ---
 
@@ -435,10 +435,10 @@
 | **参考** | API §3.8-3.10 |
 
 **验收标准：**
-- [ ] POST /interviews 返回 201
-- [ ] GET /interviews 分页正确，仅返回当前用户
-- [ ] GET /interviews/{id} 含 messages
-- [ ] 非本人访问返回 40301
+- [x] POST /interviews 返回 201
+- [x] GET /interviews 分页正确，仅返回当前用户
+- [x] GET /interviews/{id} 含 messages
+- [x] 非本人访问返回 40301
 
 ---
 
@@ -451,9 +451,9 @@
 | **参考** | API §3.11 |
 
 **验收标准：**
-- [ ] POST /start 返回 session + question
-- [ ] pending 以外状态返回 40903
-- [ ] question_count=1, status=in_progress
+- [x] POST /start 返回 session + question
+- [x] pending 以外状态返回 40903
+- [x] question_count=1, status=in_progress
 
 ---
 
@@ -466,9 +466,9 @@
 | **参考** | API §3.12 |
 
 **验收标准：**
-- [ ] POST /messages 返回 answer + nextQuestion + isFinished + questionCount
-- [ ] content 空或 >5000 返回 40001
-- [ ] 第 8 题后 isFinished=true, nextQuestion=null
+- [x] POST /messages 返回 answer + nextQuestion + isFinished + questionCount
+- [x] content 空或 >5000 返回 40001
+- [x] 第 8 题后 isFinished=true, nextQuestion=null
 
 ---
 
@@ -481,10 +481,10 @@
 | **参考** | API §3.13-3.14 |
 
 **验收标准：**
-- [ ] complete：question_count>=1 → completed + report_status=generating
-- [ ] complete：question_count==0 → 40901
-- [ ] cancel：0 题 → cancelled
-- [ ] cancel：有答题 → 40901
+- [x] complete：question_count>=1 → completed + report_status=generating
+- [x] complete：question_count==0 → 40901
+- [x] cancel：0 题 → cancelled
+- [x] cancel：有答题 → 40901
 
 ---
 

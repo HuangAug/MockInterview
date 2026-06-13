@@ -1,6 +1,7 @@
 // Register page — email + password + confirm password + display name form.
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mobile/features/auth/presentation/bloc/auth_bloc.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -120,7 +121,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       );
                     } else if (state is AuthAuthenticated) {
                       // Registration successful — navigate to home
-                      Navigator.of(context).pushReplacementNamed('/home');
+                      context.go('/home');
                     }
                   },
                   builder: (context, state) {
