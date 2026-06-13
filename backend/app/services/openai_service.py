@@ -57,6 +57,79 @@ class OpenAIService:
         self._model = settings.openai_model
         self._max_retries = settings.openai_max_retries
 
+    async def generate_first_question(
+        self,
+        job_role_name: str,
+        difficulty: str,
+        max_questions: int,
+    ) -> str:
+        """Generate the first interview question.
+
+        Args:
+            job_role_name: Display name of the job role (e.g. "前端工程师").
+            difficulty: Enum value — "junior", "mid", or "senior".
+            max_questions: Maximum number of questions for this session.
+
+        Returns:
+            The first question text.
+        """
+        difficulty_label = _DIFFICULTY_LABELS[difficulty]
+        system_prompt = _load_prompt("interview_system_prompt.txt").format(
+            job_role_name=job_role_name,
+            difficulty_label=difficulty_label,
+            max_questions=max_questions,
+        )
+        user_prompt = _load_prompt("interview_first_question_prompt.txt")
+
+        return await self._chat_completion(system_prompt, user_prompt)
+
+    async def generate_next_question(
+        self,
+        job_role_name: str,
+        difficulty: str,
+        max_questions: int,
+        question_count: int,
+        messages: list[InterviewMessage],
+    ) -> tuple[str, bool]:
+        """Generate the next interview question based on conversation history.
+
+        Args:
+            job_role_name: Display name of the job role.
+            difficulty: Enum value — "junior", "mid", or "senior".
+            max_questions: Maximum number of questions for this session.
+            question_count: Number of questions already asked.
+            messages: All messages in the session so far.
+
+        Returns:
+            A tuple of (question_text, is_finished).
+            is_finished is True when the LLM signals completion or
+            question_count >= max_questions.
+        """
+        # Short-circuit: max questions already reached
+        if question_count >= max_questions:
+            return ("", True)
+
+        difficulty_label = _DIFFICULTY_LABELS[difficulty]
+        system_prompt = _load_prompt("interview_system_prompt.txt").format(
+            job_role_name=job_role_name,
+            difficulty_label=difficulty_label,
+            max_questions=max_questions,
+        )
+        conversation_history = format_conversation_history(messages)
+        user_prompt = _load_prompt("interview_next_question_prompt.txt").format(
+            conversation_history=conversation_history,
+            question_count=question_count,
+            max_questions=max_questions,
+        )
+
+        response = await self._chat_completion(system_prompt, user_prompt)
+
+        # Check for completion signal
+        if "[INTERVIEW_COMPLETE]" in response:
+            return ("", True)
+
+        return (response, False)
+
     async def _chat_completion(
         self,
         system_prompt: str,
