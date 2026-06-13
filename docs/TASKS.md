@@ -420,9 +420,9 @@
 - 所有状态校验按 PRD 规则
 
 **验收标准：**
-- [ ] 状态转换与 ARCHITECTURE §3.1 一致
-- [ ] sequence 规则：interviewer 奇数, candidate 偶数
-- [ ] 非法状态操作抛 40901/40903
+- [x] 状态转换与 ARCHITECTURE §3.1 一致
+- [x] sequence 规则：interviewer 奇数, candidate 偶数
+- [x] 非法状态操作抛 40901/40903
 
 ---
 
