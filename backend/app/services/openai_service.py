@@ -130,6 +130,106 @@ class OpenAIService:
 
         return (response, False)
 
+    async def generate_report(
+        self,
+        job_role_name: str,
+        difficulty: str,
+        question_count: int,
+        messages: list[InterviewMessage],
+    ) -> dict:
+        """Generate an interview evaluation report via OpenAI.
+
+        Args:
+            job_role_name: Display name of the job role.
+            difficulty: Enum value — "junior", "mid", or "senior".
+            question_count: Number of questions asked.
+            messages: All messages in the session.
+
+        Returns:
+            Parsed report dict with camelCase field names.
+
+        Raises:
+            AppException(50201): If OpenAI call fails or JSON is invalid.
+        """
+        difficulty_label = _DIFFICULTY_LABELS[difficulty]
+        system_prompt = _load_prompt("interview_system_prompt.txt").format(
+            job_role_name=job_role_name,
+            difficulty_label=difficulty_label,
+            max_questions=question_count,
+        )
+        conversation_history = format_conversation_history(messages)
+        user_prompt = _load_prompt("interview_report_prompt.txt").format(
+            job_role_name=job_role_name,
+            difficulty_label=difficulty_label,
+            conversation_history=conversation_history,
+            question_count=question_count,
+        )
+
+        report = await self._chat_completion_json(
+            system_prompt, user_prompt
+        )
+
+        # Validate required fields
+        required_fields = [
+            "overallScore",
+            "communicationScore",
+            "technicalScore",
+            "problemSolvingScore",
+            "structureScore",
+            "strengths",
+            "weaknesses",
+            "suggestions",
+            "questionFeedback",
+            "summary",
+        ]
+        for field in required_fields:
+            if field not in report:
+                logger.error("Report missing required field: %s", field)
+                raise AppException(
+                    code=50201,
+                    message="AI 服务暂时不可用",
+                    status_code=502,
+                )
+
+        # Validate score ranges (0-100)
+        score_fields = [
+            "overallScore",
+            "communicationScore",
+            "technicalScore",
+            "problemSolvingScore",
+            "structureScore",
+        ]
+        for field in score_fields:
+            score = report[field]
+            if not isinstance(score, (int, float)) or score < 0 or score > 100:
+                logger.error(
+                    "Report score out of range: %s=%s", field, score
+                )
+                raise AppException(
+                    code=50201,
+                    message="AI 服务暂时不可用",
+                    status_code=502,
+                )
+
+        # Validate questionFeedback scores
+        for item in report.get("questionFeedback", []):
+            qf_score = item.get("score")
+            if (
+                not isinstance(qf_score, (int, float))
+                or qf_score < 0
+                or qf_score > 100
+            ):
+                logger.error(
+                    "QuestionFeedback score out of range: %s", qf_score
+                )
+                raise AppException(
+                    code=50201,
+                    message="AI 服务暂时不可用",
+                    status_code=502,
+                )
+
+        return report
+
     async def transcribe_audio(self, file_path: str) -> str:
         """Transcribe an audio file using Whisper API.
 
