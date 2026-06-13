@@ -1,7 +1,7 @@
 # MockInterview AI — Claude Code 执行手册
 
-> 版本：1.0.0  
-> 最后更新：2026-06-12  
+> 版本：1.0.2  
+> 最后更新：2026-06-13  
 > 本文档是 Claude Code 自动开发的首要入口
 
 ---
@@ -53,7 +53,26 @@
 
 **注意：** 每个 TASK 完成后仅 Commit，禁止 Push 或创建 PR。
 
-### 3.2 Sprint 完成流程
+### 3.2 Sprint 开始前流程
+
+开始新 Sprint 前（必须先于创建分支与执行 TASK）：
+
+```
+1. git fetch origin
+2. git checkout main
+3. git pull origin main
+4. 确认本地 main 与 origin/main 一致（git status 显示 up to date）
+5. 从 main 创建分支 feature/sprint-{n}-{slug}（如 feature/sprint-5-interview-integration）
+6. 阅读 DEVELOPMENT_PLAN.md §4 中本 Sprint 任务列表，开始第一个 TASK
+```
+
+**禁止：**
+
+- 从未同步的本地 main 创建 Sprint 分支
+- 从上一 Sprint 的 feature 分支直接延续开发（除非用户明确要求）
+- 在前一 Sprint 的 PR 尚未合并时开始下一 Sprint（除非用户确认）
+
+### 3.3 Sprint 完成流程
 
 Sprint 划分见 [DEVELOPMENT_PLAN.md](./DEVELOPMENT_PLAN.md) §4。当一个 Sprint 内的全部 TASK 均已完成时：
 
@@ -65,10 +84,7 @@ Sprint 划分见 [DEVELOPMENT_PLAN.md](./DEVELOPMENT_PLAN.md) §4。当一个 Sp
 5. 更新 Sprint 状态
 ```
 
-**开始 Sprint 时：**
-
-- 创建分支 `feature/sprint-{n}-{slug}`（如 `feature/sprint-1-infrastructure`）
-- 同一 Sprint 内所有 TASK 在同一分支上连续 Commit
+同一 Sprint 内所有 TASK 在同一分支上连续 Commit。
 
 **PR 必须包含：**
 
@@ -81,13 +97,13 @@ Sprint 划分见 [DEVELOPMENT_PLAN.md](./DEVELOPMENT_PLAN.md) §4。当一个 Sp
 
 完整 Git 规则见 [CLAUDE.md](../CLAUDE.md)。
 
-### 3.3 任务状态追踪
+### 3.4 任务状态追踪
 
 - 当前任务 ID 应在 commit message 中体现
 - 不要并行执行多个任务
 - 不要回退修改已完成任务的验收标准
 
-### 3.4 遇到以下情况必须停止并提问
+### 3.5 遇到以下情况必须停止并提问
 
 - 文档中存在矛盾（如 API 与 DATABASE 字段不一致）
 - 当前任务需要修改文档未列出的文件且无法避免
@@ -373,3 +389,4 @@ T039 → T040
 |------|------|------|
 | 1.0.0 | 2026-06-12 | 初始版本 |
 | 1.0.1 | 2026-06-12 | Git 工作流改为 Sprint 级 Push/PR |
+| 1.0.2 | 2026-06-13 | 新增 §3.2 Sprint 开始前同步 main 流程 |
