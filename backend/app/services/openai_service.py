@@ -130,6 +130,78 @@ class OpenAIService:
 
         return (response, False)
 
+    async def transcribe_audio(self, file_path: str) -> str:
+        """Transcribe an audio file using Whisper API.
+
+        Args:
+            file_path: Path to the audio file on disk.
+
+        Returns:
+            Transcribed text string.
+
+        Raises:
+            AppException(50201): If Whisper API call fails after retries.
+        """
+        audio_path = Path(file_path)
+        ext = audio_path.suffix.lstrip(".")
+        mime_map = {
+            "webm": "audio/webm",
+            "mp3": "audio/mpeg",
+            "mp4": "audio/mp4",
+            "m4a": "audio/mp4",
+            "wav": "audio/wav",
+        }
+        content_type = mime_map.get(ext, "audio/mpeg")
+
+        last_error: Exception | None = None
+        for attempt in range(self._max_retries + 1):
+            try:
+                with open(file_path, "rb") as f:
+                    audio_bytes = f.read()
+
+                transcript = await self._client.audio.transcriptions.create(
+                    model=settings.openai_whisper_model,
+                    file=(audio_path.name, audio_bytes, content_type),
+                    language="zh",
+                )
+                text = transcript.text.strip()
+                if not text:
+                    raise AppException(
+                        code=50201,
+                        message="AI 服务暂时不可用",
+                        status_code=502,
+                    )
+                return text
+
+            except AppException:
+                raise
+            except (
+                openai.APITimeoutError,
+                openai.RateLimitError,
+                openai.APIError,
+            ) as e:
+                last_error = e
+                if attempt < self._max_retries:
+                    logger.warning(
+                        "Whisper attempt %d/%d failed: %s. Retrying...",
+                        attempt + 1,
+                        self._max_retries + 1,
+                        e,
+                    )
+                    await asyncio.sleep(1)
+                else:
+                    logger.error(
+                        "Whisper all %d attempts failed: %s",
+                        self._max_retries + 1,
+                        e,
+                    )
+
+        raise AppException(
+            code=50201,
+            message="AI 服务暂时不可用",
+            status_code=502,
+        ) from last_error
+
     async def _chat_completion(
         self,
         system_prompt: str,

@@ -1,12 +1,15 @@
-"""Interview API — create, list, detail, start, messages, complete, cancel."""
+"""Interview API — create, list, detail, start, messages, complete, cancel, transcribe."""
 
 import math
+import os
+import uuid as _uuid
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, File, Query, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user
+from app.core.config import settings
 from app.core.exceptions import AppException
 from app.db.session import get_db
 from app.models.user import User
@@ -20,6 +23,7 @@ from app.schemas.interview import (
     SubmitAnswerResponse,
 )
 from app.services.interview_service import InterviewService
+from app.services.openai_service import OpenAIService
 
 router = APIRouter(prefix="/interviews", tags=["interviews"])
 
@@ -272,3 +276,67 @@ async def cancel_interview(
         data=_session_to_response(session),
         message="面试已取消",
     )
+
+
+# ---------------------------------------------------------------------------
+# T027 — POST /interviews/{id}/transcribe — audio transcription
+# ---------------------------------------------------------------------------
+
+_ALLOWED_AUDIO_EXTENSIONS = {"webm", "mp3", "mp4", "m4a", "wav"}
+_MAX_AUDIO_SIZE = 25 * 1024 * 1024  # 25 MB
+
+
+@router.post("/{session_id}/transcribe", response_model=dict)
+async def transcribe_audio(
+    session_id: str,
+    audio: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """POST /interviews/{id}/transcribe — upload audio and transcribe via Whisper."""
+    try:
+        sid = UUID(session_id)
+    except ValueError:
+        raise AppException(
+            code=40403, message="面试会话不存在", status_code=404
+        )
+
+    # Validate file size
+    content = await audio.read()
+    if len(content) > _MAX_AUDIO_SIZE:
+        raise AppException(
+            code=40003, message="文件大小超出限制", status_code=400
+        )
+
+    # Validate file extension
+    filename = audio.filename or ""
+    ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
+    if ext not in _ALLOWED_AUDIO_EXTENSIONS:
+        raise AppException(
+            code=40004, message="不支持的文件格式", status_code=400
+        )
+
+    # Validate session ownership and status
+    svc = InterviewService(db)
+    session = await svc.get_session_detail(sid, current_user.id)
+    if session.status != "in_progress":
+        raise AppException(
+            code=40901,
+            message="操作与当前状态冲突",
+            status_code=409,
+        )
+
+    # Save audio file to uploads/audio/{session_id}/{uuid}.{ext}
+    upload_dir = os.path.join(settings.upload_dir, "audio", session_id)
+    os.makedirs(upload_dir, exist_ok=True)
+    unique_name = f"{_uuid.uuid4()}.{ext}"
+    file_path = os.path.join(upload_dir, unique_name)
+    with open(file_path, "wb") as f:
+        f.write(content)
+
+    # Call Whisper API
+    openai_svc = OpenAIService()
+    text = await openai_svc.transcribe_audio(file_path)
+
+    audio_url = f"/api/v1/interviews/{session_id}/audio/{unique_name}"
+    return _success(data={"text": text, "audioUrl": audio_url})
