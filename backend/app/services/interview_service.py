@@ -13,6 +13,7 @@ from app.models.interview_message import InterviewMessage
 from app.models.interview_session import InterviewSession
 from app.models.job_role import JobRole
 from app.services.openai_service import OpenAIService
+from app.services.report_service import ReportService
 
 logger = logging.getLogger(__name__)
 
@@ -251,6 +252,11 @@ class InterviewService:
             )
         )
         await self._db.flush()
+
+        # Fire-and-forget: schedule report generation as a background task.
+        # The task creates its own AsyncSession, so it will see the committed
+        # data after the request's get_db dependency commits.
+        ReportService.trigger_report_generation(session_id)
 
         return await self._load_session_with_relations(session_id)
 
