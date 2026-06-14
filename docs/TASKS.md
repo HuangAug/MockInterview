@@ -592,8 +592,8 @@
 - interviewer 问题 TTS 播放（audioplayers）
 
 **验收标准：**
-- [ ] 语音模式录音→转写→提交流程可跑通
-- [ ] AI 问题自动播放 TTS
+- [x] 语音模式录音→转写→提交流程可跑通
+- [x] AI 问题自动播放 TTS
 
 ---
 
@@ -643,9 +643,9 @@
 | **参考** | API §3.16-3.17 |
 
 **验收标准：**
-- [ ] GET /report/status 返回 reportStatus
-- [ ] GET /report 在 ready 时返回 ReportResponse
-- [ ] 非 ready 时 GET /report 返回 40404
+- [x] GET /report/status 返回 reportStatus
+- [x] GET /report 在 ready 时返回 ReportResponse
+- [x] 非 ready 时 GET /report 返回 40404
 
 ---
 
@@ -663,9 +663,9 @@
 - ReportPage：综合分 + 五维分数 + 列表 + 逐题反馈
 
 **验收标准：**
-- [ ] 面试完成后自动轮询并展示报告
-- [ ] 超时显示失败提示
-- [ ] 报告 UI 展示全部字段
+- [x] 面试完成后自动轮询并展示报告
+- [x] 超时显示失败提示
+- [x] 报告 UI 展示全部字段
 
 ---
 

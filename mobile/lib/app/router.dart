@@ -11,6 +11,8 @@ import 'package:mobile/features/interview/presentation/session/interview_session
 import 'package:mobile/features/interview/presentation/session/interview_session_page.dart';
 import 'package:mobile/features/interview/presentation/setup/interview_setup_bloc.dart';
 import 'package:mobile/features/interview/presentation/setup/interview_setup_page.dart';
+import 'package:mobile/features/report/presentation/bloc/report_bloc.dart';
+import 'package:mobile/features/report/presentation/pages/interview_report_page.dart';
 
 class AppRouter {
   final SecureStorage secureStorage;
@@ -60,22 +62,14 @@ class AppRouter {
       ),
       GoRoute(
         path: '/interview/report/:id',
-        builder: (context, state) {
-          // T033 will implement this page
-          return Scaffold(
-            appBar: AppBar(title: const Text('报告')),
-            body: const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('报告生成中，请稍候...'),
-                ],
-              ),
-            ),
-          );
-        },
+        builder: (context, state) => BlocProvider(
+          create: (context) => ReportBloc(
+            interviewRepository: context.read(),
+          ),
+          child: InterviewReportPage(
+            sessionId: state.pathParameters['id']!,
+          ),
+        ),
       ),
       GoRoute(
         path: '/history',
