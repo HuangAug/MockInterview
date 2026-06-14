@@ -695,10 +695,10 @@
 | **参考** | PRD §6.2 HistoryPage, HIST-01~06 |
 
 **验收标准：**
-- [ ] 列表展示岗位、难度、日期、分数/状态
-- [ ] completed+ready 可点击进入报告
-- [ ] in_progress 显示「继续面试」
-- [ ] 空状态文案
+- [x] 列表展示岗位、难度、日期、分数/状态
+- [x] completed+ready 可点击进入报告
+- [x] in_progress 显示「继续面试」
+- [x] 空状态文案
 
 ---
 

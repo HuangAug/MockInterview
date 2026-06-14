@@ -7,6 +7,8 @@ import 'package:mobile/features/auth/presentation/pages/login_page.dart';
 import 'package:mobile/features/auth/presentation/pages/register_page.dart';
 import 'package:mobile/features/home/presentation/pages/home_page.dart';
 import 'package:mobile/features/home/presentation/pages/splash_page.dart';
+import 'package:mobile/features/history/presentation/bloc/history_bloc.dart';
+import 'package:mobile/features/history/presentation/pages/history_page.dart';
 import 'package:mobile/features/interview/presentation/session/interview_session_bloc.dart';
 import 'package:mobile/features/interview/presentation/session/interview_session_page.dart';
 import 'package:mobile/features/interview/presentation/setup/interview_setup_bloc.dart';
@@ -73,43 +75,12 @@ class AppRouter {
       ),
       GoRoute(
         path: '/history',
-        builder: (context, state) {
-          // T035 will implement this page
-          return Scaffold(
-            appBar: AppBar(title: const Text('历史记录')),
-            body: const Center(child: Text('暂无面试记录')),
-            bottomNavigationBar: NavigationBar(
-              selectedIndex: 1,
-              onDestinationSelected: (index) {
-                switch (index) {
-                  case 0:
-                    context.go('/home');
-                  case 1:
-                    break;
-                  case 2:
-                    context.go('/profile');
-                }
-              },
-              destinations: const [
-                NavigationDestination(
-                  icon: Icon(Icons.home_outlined),
-                  selectedIcon: Icon(Icons.home),
-                  label: '首页',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.history_outlined),
-                  selectedIcon: Icon(Icons.history),
-                  label: '历史',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.person_outlined),
-                  selectedIcon: Icon(Icons.person),
-                  label: '我的',
-                ),
-              ],
-            ),
-          );
-        },
+        builder: (context, state) => BlocProvider(
+          create: (context) => HistoryBloc(
+            interviewRepository: context.read(),
+          ),
+          child: const HistoryPage(),
+        ),
       ),
       GoRoute(
         path: '/profile',
