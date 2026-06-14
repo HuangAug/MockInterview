@@ -159,7 +159,7 @@ class TestCreateInterview:
         assert resp.json()["error"]["code"] == 40402
 
     @pytest.mark.asyncio
-    async def test_create_invalid_difficulty_returns_422(self) -> None:
+    async def test_create_invalid_difficulty_returns_400(self) -> None:
         mock_db = AsyncMock()
         _setup_auth(mock_db)
 
@@ -175,7 +175,8 @@ class TestCreateInterview:
                 },
             )
 
-        assert resp.status_code == 422
+        assert resp.status_code == 400
+        assert resp.json()["error"]["code"] == 40001
 
     @pytest.mark.asyncio
     async def test_create_requires_auth(self) -> None:
@@ -492,7 +493,7 @@ class TestSubmitAnswer:
         assert data["questionCount"] == 8
 
     @pytest.mark.asyncio
-    async def test_submit_empty_content_returns_422(self) -> None:
+    async def test_submit_empty_content_returns_400(self) -> None:
         mock_db = AsyncMock()
         _setup_auth(mock_db)
 
@@ -504,7 +505,8 @@ class TestSubmitAnswer:
                 json={"content": ""},
             )
 
-        assert resp.status_code == 422
+        assert resp.status_code == 400
+        assert resp.json()["error"]["code"] == 40001
 
     @pytest.mark.asyncio
     async def test_submit_not_in_progress_returns_40901(self) -> None:

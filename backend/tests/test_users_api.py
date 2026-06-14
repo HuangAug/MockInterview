@@ -176,7 +176,7 @@ class TestUpdateMe:
         assert resp.json()["error"]["code"] == 40402
 
     @pytest.mark.asyncio
-    async def test_update_display_name_too_long_returns_422(self) -> None:
+    async def test_update_display_name_too_long_returns_400(self) -> None:
         mock_db = AsyncMock()
         app.dependency_overrides[get_db] = lambda: mock_db
         app.dependency_overrides[get_current_user] = lambda: _mock_user()
@@ -189,7 +189,8 @@ class TestUpdateMe:
                 json={"displayName": "x" * 51},
             )
 
-        assert resp.status_code == 422
+        assert resp.status_code == 400
+        assert resp.json()["error"]["code"] == 40001
 
     @pytest.mark.asyncio
     async def test_update_requires_auth(self) -> None:

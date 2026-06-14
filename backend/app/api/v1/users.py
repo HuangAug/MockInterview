@@ -53,5 +53,6 @@ async def update_me(
         user_id=current_user.id,
         display_name=body.display_name,
         target_job_role_id=body.target_job_role_id,
+        update_target_job_role="target_job_role_id" in body.model_fields_set,
     )
     return _success(data=_user_response(user, job_role_name), message="更新成功")

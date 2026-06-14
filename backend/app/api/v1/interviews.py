@@ -51,7 +51,7 @@ def _session_to_response(session: object) -> dict:
             MessageResponse.model_validate(m).model_dump(by_alias=True) for m in session.messages
         ]
 
-    return InterviewSessionResponse(
+    resp = InterviewSessionResponse(
         id=session.id,
         job_role_id=session.job_role_id,
         job_role_name=job_role_name,
@@ -67,6 +67,12 @@ def _session_to_response(session: object) -> dict:
         updated_at=session.updated_at,
         messages=messages,
     ).model_dump(by_alias=True)
+
+    # Omit messages field when None (e.g. create/list responses)
+    if messages is None:
+        resp.pop("messages", None)
+
+    return resp
 
 
 # ---------------------------------------------------------------------------
