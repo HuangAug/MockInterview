@@ -45,6 +45,7 @@ class UserService:
         user_id: UUID,
         display_name: str | None = None,
         target_job_role_id: UUID | None = None,
+        update_target_job_role: bool = False,
     ) -> tuple[User, str | None]:
         """Update user profile fields and return updated user + job role name.
 
@@ -62,19 +63,23 @@ class UserService:
         if display_name is not None:
             user.display_name = display_name
 
-        if target_job_role_id is not None:
-            jr_result = await self._db.execute(
-                select(JobRole).where(
-                    JobRole.id == target_job_role_id,
-                    JobRole.is_active.is_(True),
+        if update_target_job_role:
+            if target_job_role_id is not None:
+                jr_result = await self._db.execute(
+                    select(JobRole).where(
+                        JobRole.id == target_job_role_id,
+                        JobRole.is_active.is_(True),
+                    )
                 )
-            )
-            jr = jr_result.scalar_one_or_none()
-            if jr is None:
-                raise AppException(
-                    code=40402, message="岗位不存在", status_code=404
-                )
-            user.target_job_role_id = target_job_role_id
+                jr = jr_result.scalar_one_or_none()
+                if jr is None:
+                    raise AppException(
+                        code=40402, message="岗位不存在", status_code=404
+                    )
+                user.target_job_role_id = target_job_role_id
+            else:
+                # Explicitly clear the target job role
+                user.target_job_role_id = None
 
         await self._db.flush()
 

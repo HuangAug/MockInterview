@@ -1,6 +1,7 @@
-"""Application exception class and global exception handler."""
+"""Application exception class and global exception handlers."""
 
 from fastapi import Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 
@@ -41,3 +42,25 @@ async def app_exception_handler(_request: Request, exc: AppException) -> JSONRes
     if exc.details is not None:
         body["error"]["details"] = exc.details
     return JSONResponse(status_code=exc.status_code, content=body)
+
+
+async def validation_exception_handler(
+    _request: Request, exc: RequestValidationError
+) -> JSONResponse:
+    """Convert Pydantic validation errors to the unified error format (code 40001)."""
+    details = []
+    for error in exc.errors():
+        loc = error.get("loc", ())
+        # Skip the first element ("body"/"query"/"path") to get the field name
+        field = ".".join(str(part) for part in loc[1:]) if len(loc) > 1 else "unknown"
+        details.append({"field": field, "message": error.get("msg", "")})
+    body: dict = {
+        "success": False,
+        "data": None,
+        "error": {
+            "code": 40001,
+            "message": "参数校验失败",
+            "details": details,
+        },
+    }
+    return JSONResponse(status_code=400, content=body)

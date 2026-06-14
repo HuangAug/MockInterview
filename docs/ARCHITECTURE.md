@@ -81,9 +81,10 @@ MockInterview_AI/
 │   │   │   ├── theme.dart               # 主题
 │   │   │   └── di.dart                  # 依赖注入 GetIt
 │   │   ├── core/
+│   │   │   ├── audio/
+│   │   │   │   └── audio_service.dart
 │   │   │   ├── constants/
-│   │   │   │   ├── api_constants.dart
-│   │   │   │   └── app_constants.dart
+│   │   │   │   └── api_constants.dart
 │   │   │   ├── network/
 │   │   │   │   ├── dio_client.dart
 │   │   │   │   ├── auth_interceptor.dart
@@ -101,7 +102,6 @@ MockInterview_AI/
 │   │   │   ├── history/
 │   │   │   └── profile/
 │   │   └── shared/
-│   │       ├── widgets/
 │   │       └── models/                  # 共享 DTO
 │   ├── pubspec.yaml
 │   └── .env.example

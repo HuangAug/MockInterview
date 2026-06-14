@@ -723,9 +723,7 @@ curl -X POST http://localhost:8000/api/v1/auth/register \
 ```json
 {
   "success": true,
-  "data": {
-    "session": { /* InterviewSessionResponse, status=completed, reportStatus=generating */ }
-  },
+  "data": { /* InterviewSessionResponse, status=completed, reportStatus=generating */ },
   "message": "面试已结束，正在生成报告"
 }
 ```
@@ -758,9 +756,7 @@ curl -X POST http://localhost:8000/api/v1/auth/register \
 ```json
 {
   "success": true,
-  "data": {
-    "session": { /* InterviewSessionResponse, status=cancelled */ }
-  },
+  "data": { /* InterviewSessionResponse, status=cancelled */ },
   "message": "面试已取消"
 }
 ```

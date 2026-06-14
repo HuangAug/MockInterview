@@ -121,7 +121,7 @@ class TestUpdateMe:
 
         svc = UserService(mock_db)
         result_user, role_name = await svc.update_me(
-            USER_UUID, target_job_role_id=JOB_ROLE_UUID
+            USER_UUID, target_job_role_id=JOB_ROLE_UUID, update_target_job_role=True
         )
 
         assert result_user.target_job_role_id == JOB_ROLE_UUID
@@ -140,7 +140,9 @@ class TestUpdateMe:
 
         svc = UserService(mock_db)
         with pytest.raises(AppException) as exc_info:
-            await svc.update_me(USER_UUID, target_job_role_id=uuid.uuid4())
+            await svc.update_me(
+                USER_UUID, target_job_role_id=uuid.uuid4(), update_target_job_role=True
+            )
 
         assert exc_info.value.code == 40402
 

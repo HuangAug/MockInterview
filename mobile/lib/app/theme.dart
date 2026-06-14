@@ -21,7 +21,6 @@ class AppTheme {
   // ---------------------------------------------------------------------------
   // Spacing (multiples of 8)
   // ---------------------------------------------------------------------------
-  static const double spacingXs = 4;
   static const double spacingSm = 8;
   static const double spacingMd = 16;
   static const double spacingLg = 24;

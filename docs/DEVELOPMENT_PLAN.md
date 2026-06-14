@@ -1,8 +1,8 @@
 # MockInterview AI — 开发计划
 
-> 版本：1.0.0  
-> 最后更新：2026-06-12  
-> 基于：TASKS.md v1.0.0（40 项任务）  
+> 版本：1.0.1  
+> 最后更新：2026-06-14  
+> 基于：TASKS.md v1.0.3（40 项任务）  
 > 关联文档：[TASKS.md](./TASKS.md) | [ARCHITECTURE.md](./ARCHITECTURE.md) | [CLAUDE_INSTRUCTIONS.md](./CLAUDE_INSTRUCTIONS.md)
 
 ---
