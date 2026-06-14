@@ -640,3 +640,130 @@ class TestCancelInterview:
 
         assert resp.status_code == 409
         assert resp.json()["error"]["code"] == 40901
+
+
+# ===========================================================================
+# T038 — Interview flow integration test (mock OpenAI)
+# ===========================================================================
+
+
+class TestInterviewFlow:
+    """End-to-end interview flow: create → start → messages → complete (T038)."""
+
+    @pytest.mark.asyncio
+    async def test_full_interview_flow(self) -> None:
+        """Verify the complete interview lifecycle via HTTP layer."""
+        mock_db = AsyncMock()
+        _setup_auth(mock_db)
+
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://test"
+        ) as client:
+            # Step 1: Create session
+            session = _mock_session(status="pending", question_count=0)
+            with patch(
+                "app.services.interview_service.InterviewService.create_session",
+                new_callable=AsyncMock,
+                return_value=session,
+            ):
+                resp = await client.post(
+                    "/api/v1/interviews",
+                    json={
+                        "jobRoleId": str(JOB_ROLE_UUID),
+                        "difficulty": "mid",
+                        "mode": "text",
+                    },
+                )
+            assert resp.status_code == 201
+            assert resp.json()["data"]["status"] == "pending"
+
+            # Step 2: Start interview → get first question
+            started_session = _mock_session(
+                status="in_progress", question_count=1
+            )
+            first_question = _mock_message(
+                "interviewer", "请做一下自我介绍", 1
+            )
+            with patch(
+                "app.services.interview_service.InterviewService.start_session",
+                new_callable=AsyncMock,
+                return_value=(started_session, first_question),
+            ):
+                resp = await client.post(
+                    f"/api/v1/interviews/{SESSION_UUID}/start"
+                )
+            assert resp.status_code == 200
+            data = resp.json()["data"]
+            assert data["session"]["status"] == "in_progress"
+            assert data["question"]["sequence"] == 1
+
+            # Step 3: Submit answer 1 → get question 2
+            answer_1 = _mock_message("candidate", "我叫张三", 2)
+            question_2 = _mock_message(
+                "interviewer", "你有什么项目经验？", 3
+            )
+            with patch(
+                "app.services.interview_service.InterviewService.submit_answer",
+                new_callable=AsyncMock,
+                return_value=(answer_1, question_2, False, 2),
+            ):
+                resp = await client.post(
+                    f"/api/v1/interviews/{SESSION_UUID}/messages",
+                    json={"content": "我叫张三"},
+                )
+            assert resp.status_code == 200
+            data = resp.json()["data"]
+            assert data["isFinished"] is False
+            assert data["questionCount"] == 2
+
+            # Step 4: Submit answer 2 → get question 3
+            answer_2 = _mock_message("candidate", "我在字节跳动实习过", 4)
+            question_3 = _mock_message(
+                "interviewer", "你最大的优势是什么？", 5
+            )
+            with patch(
+                "app.services.interview_service.InterviewService.submit_answer",
+                new_callable=AsyncMock,
+                return_value=(answer_2, question_3, False, 3),
+            ):
+                resp = await client.post(
+                    f"/api/v1/interviews/{SESSION_UUID}/messages",
+                    json={"content": "我在字节跳动实习过"},
+                )
+            assert resp.status_code == 200
+            assert resp.json()["data"]["questionCount"] == 3
+
+            # Step 5: Submit answer 3 → finished
+            answer_3 = _mock_message("candidate", "我擅长前端开发", 6)
+            with patch(
+                "app.services.interview_service.InterviewService.submit_answer",
+                new_callable=AsyncMock,
+                return_value=(answer_3, None, True, 3),
+            ):
+                resp = await client.post(
+                    f"/api/v1/interviews/{SESSION_UUID}/messages",
+                    json={"content": "我擅长前端开发"},
+                )
+            assert resp.status_code == 200
+            data = resp.json()["data"]
+            assert data["isFinished"] is True
+            assert data["nextQuestion"] is None
+
+            # Step 6: Complete interview
+            completed_session = _mock_session(
+                status="completed",
+                question_count=3,
+                report_status="generating",
+            )
+            with patch(
+                "app.services.interview_service.InterviewService.complete_session",
+                new_callable=AsyncMock,
+                return_value=completed_session,
+            ):
+                resp = await client.post(
+                    f"/api/v1/interviews/{SESSION_UUID}/complete"
+                )
+            assert resp.status_code == 200
+            body = resp.json()
+            assert body["data"]["status"] == "completed"
+            assert body["message"] == "面试已结束，正在生成报告"

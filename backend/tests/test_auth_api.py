@@ -258,3 +258,92 @@ class TestLogoutEndpoint:
         body = resp.json()
         assert body["success"] is True
         assert body["message"] == "已退出登录"
+
+
+# ===========================================================================
+# T038 — Auth flow integration test
+# ===========================================================================
+
+
+class TestAuthFlow:
+    """End-to-end auth flow: register → login → refresh → logout (T038)."""
+
+    @pytest.mark.asyncio
+    async def test_full_auth_flow(self) -> None:
+        """Verify the complete auth lifecycle via HTTP layer."""
+        mock_db = AsyncMock()
+        app.dependency_overrides[get_db] = lambda: mock_db
+
+        mock_user = _mock_user()
+
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://test"
+        ) as client:
+            # Step 1: Register
+            with patch(
+                "app.services.auth_service.AuthService.register",
+                new_callable=AsyncMock,
+                return_value=(mock_user, "access_1", "r" * 128),
+            ):
+                resp = await client.post(
+                    "/api/v1/auth/register",
+                    json={
+                        "email": "test@example.com",
+                        "password": "Pass1234",
+                        "displayName": "TestUser",
+                    },
+                )
+            assert resp.status_code == 201
+            data = resp.json()["data"]
+            assert data["tokens"]["accessToken"] == "access_1"
+
+            # Step 2: Login
+            with patch(
+                "app.services.auth_service.AuthService.login",
+                new_callable=AsyncMock,
+                return_value=(mock_user, "access_2", "s" * 128),
+            ):
+                resp = await client.post(
+                    "/api/v1/auth/login",
+                    json={"email": "test@example.com", "password": "Pass1234"},
+                )
+            assert resp.status_code == 200
+            data = resp.json()["data"]
+            assert data["tokens"]["accessToken"] == "access_2"
+            refresh_token_2 = data["tokens"]["refreshToken"]
+            assert refresh_token_2 == "s" * 128
+
+            # Step 3: Refresh
+            with patch(
+                "app.services.auth_service.AuthService.refresh",
+                new_callable=AsyncMock,
+                return_value=("access_3", "t" * 128),
+            ):
+                resp = await client.post(
+                    "/api/v1/auth/refresh",
+                    json={"refreshToken": refresh_token_2},
+                )
+            assert resp.status_code == 200
+            data = resp.json()["data"]
+            assert data["accessToken"] == "access_3"
+            refresh_token_3 = data["refreshToken"]
+            assert refresh_token_3 == "t" * 128
+
+            # Step 4: Logout (requires auth header)
+            from app.api.deps import get_current_user
+
+            app.dependency_overrides[get_current_user] = lambda: mock_user
+
+            with patch(
+                "app.services.auth_service.AuthService.logout",
+                new_callable=AsyncMock,
+            ):
+                resp = await client.post(
+                    "/api/v1/auth/logout",
+                    json={"refreshToken": refresh_token_3},
+                    headers={"Authorization": "Bearer access_3"},
+                )
+            assert resp.status_code == 200
+            body = resp.json()
+            assert body["success"] is True
+            assert body["message"] == "已退出登录"
