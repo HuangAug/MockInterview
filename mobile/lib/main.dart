@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/app/router.dart';
+import 'package:mobile/core/audio/audio_service.dart';
 import 'package:mobile/core/network/dio_client.dart';
 import 'package:mobile/core/storage/secure_storage.dart';
 import 'package:mobile/features/auth/data/auth_repository.dart';
@@ -28,11 +29,18 @@ Future<void> main() async {
   getIt.registerSingleton<AuthRepository>(
     AuthRepository(dio: dio, secureStorage: secureStorage),
   );
-  getIt.registerSingleton<InterviewRepository>(
-    InterviewRepository(dio: dio),
+  final interviewRepository = InterviewRepository(
+    dio: dio,
+    secureStorage: secureStorage,
   );
+  getIt.registerSingleton<InterviewRepository>(interviewRepository);
   getIt.registerSingleton<JobRoleRepository>(
     JobRoleRepository(dio: dio),
+  );
+
+  // Register audio service for voice mode
+  getIt.registerSingleton<AudioService>(
+    AudioService(interviewRepository: interviewRepository),
   );
 
   // Register router

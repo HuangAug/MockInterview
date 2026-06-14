@@ -1,10 +1,12 @@
 // InterviewRepository — handles all interview API calls.
 import 'package:dio/dio.dart';
 import 'package:mobile/core/network/api_exception.dart';
+import 'package:mobile/core/storage/secure_storage.dart';
 import 'package:mobile/shared/models/interview_message.dart';
 import 'package:mobile/shared/models/interview_report.dart';
 import 'package:mobile/shared/models/interview_session.dart';
 import 'package:mobile/shared/models/pagination.dart';
+import 'package:path/path.dart' as p;
 
 /// Response shape for GET /interviews (paginated list).
 class InterviewListResponse {
@@ -42,8 +44,9 @@ class SubmitAnswerResponse {
 
 class InterviewRepository {
   final Dio _dio;
+  final SecureStorage _secureStorage;
 
-  InterviewRepository({required this._dio});
+  InterviewRepository({required this._dio, required this._secureStorage});
 
   // ---------------------------------------------------------------------------
   // Helpers
@@ -225,6 +228,53 @@ class InterviewRepository {
       final response = await _dio.get('/interviews/$id/report');
       final data = _extractData(response);
       return InterviewReport.fromJson(data);
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // POST /interviews/{id}/transcribe — upload audio and transcribe
+  // ---------------------------------------------------------------------------
+
+  Future<String> transcribeAudio(String sessionId, String filePath) async {
+    try {
+      final fileName = p.basename(filePath);
+      final formData = FormData.fromMap({
+        'audio': await MultipartFile.fromFile(filePath, filename: fileName),
+      });
+      final response = await _dio.post(
+        '/interviews/$sessionId/transcribe',
+        data: formData,
+      );
+      final data = _extractData(response);
+      return data['text'] as String;
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // GET /interviews/{id}/messages/{messageId}/tts — download TTS audio
+  // ---------------------------------------------------------------------------
+
+  Future<String> downloadTtsAudio(
+    String sessionId,
+    String messageId,
+    String savePath,
+  ) async {
+    try {
+      final token = await _secureStorage.getAccessToken();
+      await _dio.download(
+        '/interviews/$sessionId/messages/$messageId/tts',
+        savePath,
+        options: Options(
+          headers: {
+            if (token != null) 'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+      return savePath;
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
