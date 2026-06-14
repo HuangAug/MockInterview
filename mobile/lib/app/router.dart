@@ -9,10 +9,14 @@ import 'package:mobile/features/home/presentation/pages/home_page.dart';
 import 'package:mobile/features/home/presentation/pages/splash_page.dart';
 import 'package:mobile/features/history/presentation/bloc/history_bloc.dart';
 import 'package:mobile/features/history/presentation/pages/history_page.dart';
+import 'package:mobile/features/interview/data/job_role_repository.dart';
 import 'package:mobile/features/interview/presentation/session/interview_session_bloc.dart';
 import 'package:mobile/features/interview/presentation/session/interview_session_page.dart';
 import 'package:mobile/features/interview/presentation/setup/interview_setup_bloc.dart';
 import 'package:mobile/features/interview/presentation/setup/interview_setup_page.dart';
+import 'package:mobile/features/profile/data/user_repository.dart';
+import 'package:mobile/features/profile/presentation/bloc/profile_bloc.dart';
+import 'package:mobile/features/profile/presentation/pages/profile_page.dart';
 import 'package:mobile/features/report/presentation/bloc/report_bloc.dart';
 import 'package:mobile/features/report/presentation/pages/interview_report_page.dart';
 
@@ -84,43 +88,13 @@ class AppRouter {
       ),
       GoRoute(
         path: '/profile',
-        builder: (context, state) {
-          // T036 will implement this page
-          return Scaffold(
-            appBar: AppBar(title: const Text('个人资料')),
-            body: const Center(child: Text('个人资料页')),
-            bottomNavigationBar: NavigationBar(
-              selectedIndex: 2,
-              onDestinationSelected: (index) {
-                switch (index) {
-                  case 0:
-                    context.go('/home');
-                  case 1:
-                    context.go('/history');
-                  case 2:
-                    break;
-                }
-              },
-              destinations: const [
-                NavigationDestination(
-                  icon: Icon(Icons.home_outlined),
-                  selectedIcon: Icon(Icons.home),
-                  label: '首页',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.history_outlined),
-                  selectedIcon: Icon(Icons.history),
-                  label: '历史',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.person_outlined),
-                  selectedIcon: Icon(Icons.person),
-                  label: '我的',
-                ),
-              ],
-            ),
-          );
-        },
+        builder: (context, state) => BlocProvider(
+          create: (context) => ProfileBloc(
+            userRepository: context.read<UserRepository>(),
+            jobRoleRepository: context.read<JobRoleRepository>(),
+          ),
+          child: const ProfilePage(),
+        ),
       ),
     ],
   );

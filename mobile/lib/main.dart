@@ -11,6 +11,7 @@ import 'package:mobile/features/auth/data/auth_repository.dart';
 import 'package:mobile/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:mobile/features/interview/data/interview_repository.dart';
 import 'package:mobile/features/interview/data/job_role_repository.dart';
+import 'package:mobile/features/profile/data/user_repository.dart';
 
 final getIt = GetIt.instance;
 
@@ -36,6 +37,9 @@ Future<void> main() async {
   getIt.registerSingleton<InterviewRepository>(interviewRepository);
   getIt.registerSingleton<JobRoleRepository>(
     JobRoleRepository(dio: dio),
+  );
+  getIt.registerSingleton<UserRepository>(
+    UserRepository(dio: dio),
   );
 
   // Register audio service for voice mode
@@ -66,6 +70,9 @@ class MockInterviewApp extends StatelessWidget {
         ),
         RepositoryProvider<JobRoleRepository>.value(
           value: getIt<JobRoleRepository>(),
+        ),
+        RepositoryProvider<UserRepository>.value(
+          value: getIt<UserRepository>(),
         ),
       ],
       child: BlocProvider(

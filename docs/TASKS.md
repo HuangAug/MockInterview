@@ -711,10 +711,10 @@
 | **参考** | PRD §6.2 ProfilePage |
 
 **验收标准：**
-- [ ] 展示邮箱（只读）
-- [ ] 可编辑昵称、目标岗位
-- [ ] 保存调用 PATCH /users/me
-- [ ] 退出登录清除 token 跳转 /login
+- [x] 展示邮箱（只读）
+- [x] 可编辑昵称、目标岗位
+- [x] 保存调用 PATCH /users/me
+- [x] 退出登录清除 token 跳转 /login
 
 ---
 
