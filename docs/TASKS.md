@@ -1,7 +1,7 @@
 # MockInterview AI — 开发任务清单
 
-> 版本：1.0.2  
-> 最后更新：2026-06-13  
+> 版本：1.0.3  
+> 最后更新：2026-06-14  
 > 任务粒度：每项 ≤ 4 小时（半天）  
 > 关联文档：[CLAUDE_INSTRUCTIONS.md](./CLAUDE_INSTRUCTIONS.md) | [API.md](./API.md) | [DATABASE.md](./DATABASE.md)
 
@@ -71,9 +71,9 @@
 - 创建 `README.md`：项目简介、docker-compose 启动命令
 
 **验收标准：**
-- [ ] `docker-compose config` 无语法错误
-- [ ] postgres 端口 5432，redis 6379，backend 8000
-- [ ] `.gitignore` 包含 `.env`, `__pycache__`, `.dart_tool`, `uploads/`
+- [x] `docker-compose config` 无语法错误
+- [x] postgres 端口 5432，redis 6379，backend 8000
+- [x] `.gitignore` 包含 `.env`, `__pycache__`, `.dart_tool`, `uploads/`
 
 ---
 
@@ -92,9 +92,9 @@
 - `Dockerfile`：python:3.11-slim, 安装依赖, uvicorn 启动
 
 **验收标准：**
-- [ ] `docker-compose up backend` 启动成功
-- [ ] `GET /health` 返回 `{"status":"ok","timestamp":"..."}`
-- [ ] `.env.example` 包含全部环境变量
+- [x] `docker-compose up backend` 启动成功
+- [x] `GET /health` 返回 `{"status":"ok","timestamp":"..."}`
+- [x] `.env.example` 包含全部环境变量
 
 ---
 
@@ -112,8 +112,8 @@
 - `base.py`：DeclarativeBase
 
 **验收标准：**
-- [ ] `alembic upgrade head` 可执行（尚无 migration 时不报错）
-- [ ] backend 启动时可连接 PostgreSQL
+- [x] `alembic upgrade head` 可执行（尚无 migration 时不报错）
+- [x] backend 启动时可连接 PostgreSQL
 
 ---
 
@@ -133,9 +133,9 @@
 - `mobile/.env.example`：`API_BASE_URL=http://10.0.2.2:8000/api/v1`
 
 **验收标准：**
-- [ ] `flutter analyze` 无 error
-- [ ] 目录结构与 ARCHITECTURE §2 一致
-- [ ] App 可编译运行（空白 MaterialApp）
+- [x] `flutter analyze` 无 error
+- [x] 目录结构与 ARCHITECTURE §2 一致
+- [x] App 可编译运行（空白 MaterialApp）
 
 ---
 
@@ -154,8 +154,8 @@
 - 移动端：`ApiException` 含 code, message, details
 
 **验收标准：**
-- [ ] 后端抛 AppException 返回正确 JSON 错误结构
-- [ ] 移动端 ApiException 可从 Dio 错误解析
+- [x] 后端抛 AppException 返回正确 JSON 错误结构
+- [x] 移动端 ApiException 可从 Dio 错误解析
 
 ---
 
@@ -244,7 +244,7 @@
 **验收标准：**
 - [x] 密码哈希/验证正确
 - [x] JWT 解码可获取 user_id
-- [x] refresh token 为 64 字符 hex
+- [x] refresh token 为 128 字符 hex（64 bytes）
 
 ---
 
@@ -733,9 +733,9 @@
 - main.dart 加载 dotenv
 
 **验收标准：**
-- [ ] 全部页面可导航
-- [ ] 主题统一
-- [ ] DI 正常工作
+- [x] 全部页面可导航
+- [x] 主题统一
+- [x] DI 正常工作
 
 ---
 
@@ -748,8 +748,8 @@
 | **参考** | API §3.1-3.14 |
 
 **验收标准：**
-- [ ] 注册→登录→refresh→logout 流程测试通过
-- [ ] 创建→start→messages→complete 流程测试通过（mock OpenAI）
+- [x] 注册→登录→refresh→logout 流程测试通过
+- [x] 创建→start→messages→complete 流程测试通过（mock OpenAI）
 
 ---
 
@@ -770,8 +770,8 @@
 - 常见问题
 
 **验收标准：**
-- [ ] 按 README 步骤可从零启动项目
-- [ ] 包含 OpenAI API Key 配置说明
+- [x] 按 README 步骤可从零启动项目
+- [x] 包含 OpenAI API Key 配置说明
 
 ---
 
@@ -789,8 +789,8 @@
 - 错误场景项（弱密码、重复注册、401 refresh）
 
 **验收标准：**
-- [ ] 清单覆盖 PRD 所有核心验收标准
-- [ ] 每项有预期结果
+- [x] 清单覆盖 PRD 所有核心验收标准
+- [x] 每项有预期结果
 
 ---
 
