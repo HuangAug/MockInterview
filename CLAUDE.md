@@ -223,6 +223,42 @@ Commit
 
 ---
 
+# Sprint 开始前流程
+
+开始新 Sprint 前（必须先于创建分支与执行 TASK）：
+
+步骤1
+
+git fetch origin
+
+步骤2
+
+git checkout main
+
+步骤3
+
+git pull origin main
+
+步骤4
+
+确认本地 main 与 origin/main 一致
+
+步骤5
+
+从 main 创建功能分支 feature/sprint-{n}-{slug}
+
+步骤6
+
+阅读 DEVELOPMENT_PLAN.md 中本 Sprint 任务列表，开始第一个 TASK
+
+**禁止：**
+
+* 从未同步的本地 main 创建 Sprint 分支
+* 从上一 Sprint 的 feature 分支直接延续开发（除非用户明确要求）
+* 在前一 Sprint 的 PR 尚未合并时开始下一 Sprint（除非用户确认）
+
+---
+
 # Sprint 完成流程
 
 当一个 Sprint 内的全部 TASK 均已完成时：
@@ -327,9 +363,13 @@ git push main
 
 git push master
 
+开始 Sprint 前：
+
+同步 main 分支（见「Sprint 开始前流程」）
+
 开始 Sprint 时：
 
-创建功能分支：
+从已同步的 main 创建功能分支：
 
 feature/sprint-{n}-{slug}
 

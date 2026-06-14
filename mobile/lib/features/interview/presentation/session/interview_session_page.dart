@@ -1,11 +1,14 @@
-// Interview session page — displays Q&A chat interface for text mode.
+// Interview session page — displays Q&A chat interface for text and voice modes.
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mobile/core/audio/audio_service.dart';
 import 'package:mobile/features/interview/presentation/session/interview_session_bloc.dart';
+import 'package:mobile/features/interview/presentation/session/voice/voice_input_widget.dart';
 import 'package:mobile/shared/models/interview_message.dart';
 
-/// The main interview session page with chat bubbles and text input.
+/// The main interview session page with chat bubbles and text/voice input.
 class InterviewSessionPage extends StatefulWidget {
   final String sessionId;
 
@@ -18,6 +21,12 @@ class InterviewSessionPage extends StatefulWidget {
 class _InterviewSessionPageState extends State<InterviewSessionPage> {
   final _controller = TextEditingController();
   final _scrollController = ScrollController();
+  final AudioService _audioService = GetIt.I<AudioService>();
+
+  /// Message IDs whose TTS has already been auto-played.
+  final Set<String> _playedTtsIds = {};
+
+  bool _isVoiceMode = false;
 
   @override
   void initState() {
@@ -29,6 +38,7 @@ class _InterviewSessionPageState extends State<InterviewSessionPage> {
   void dispose() {
     _controller.dispose();
     _scrollController.dispose();
+    _audioService.stopPlayback();
     super.dispose();
   }
 
@@ -49,6 +59,25 @@ class _InterviewSessionPageState extends State<InterviewSessionPage> {
     if (text.isEmpty) return;
     context.read<InterviewSessionBloc>().add(SubmitAnswer(text));
     _controller.clear();
+  }
+
+  /// Submit a transcribed voice answer.
+  void _submitVoiceAnswer(String text) {
+    context.read<InterviewSessionBloc>().add(SubmitAnswer(text));
+  }
+
+  /// Auto-play TTS for the latest interviewer message that hasn't been played.
+  void _autoPlayTtsIfNeeded(List<InterviewMessage> messages) {
+    if (!_isVoiceMode) return;
+
+    // Find the last interviewer message
+    for (final msg in messages.reversed) {
+      if (msg.role == 'interviewer' && !_playedTtsIds.contains(msg.id)) {
+        _playedTtsIds.add(msg.id);
+        _audioService.playTts(widget.sessionId, msg.id);
+        return;
+      }
+    }
   }
 
   Future<void> _showEndDialog() async {
@@ -91,7 +120,12 @@ class _InterviewSessionPageState extends State<InterviewSessionPage> {
   Widget build(BuildContext context) {
     return BlocConsumer<InterviewSessionBloc, InterviewSessionState>(
       listener: (context, state) {
-        // Show error messages
+        // Detect voice mode from session
+        if (state.session != null) {
+          _isVoiceMode = state.session!.mode == 'voice';
+        }
+
+        // Show error message
         if (state.errorMessage != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.errorMessage!)),
@@ -100,15 +134,18 @@ class _InterviewSessionPageState extends State<InterviewSessionPage> {
 
         // Navigate to report polling page after completion
         if (state.isCompleted) {
+          _audioService.stopPlayback();
           context.pushReplacement('/interview/report/${widget.sessionId}');
         }
 
         // Navigate home after cancellation
         if (state.isCancelled) {
+          _audioService.stopPlayback();
           context.go('/home');
         }
 
-        // Auto-scroll when messages change
+        // Auto-play TTS for voice mode and auto-scroll
+        _autoPlayTtsIfNeeded(state.messages);
         _scrollToBottom();
       },
       builder: (context, state) {
@@ -138,16 +175,20 @@ class _InterviewSessionPageState extends State<InterviewSessionPage> {
           body: Column(
             children: [
               Expanded(child: _buildMessageList(state)),
-              if (state.session?.status == 'in_progress' ||
-                  state.messages.isNotEmpty &&
-                      !state.isCompleted &&
-                      !state.isCancelled)
-                _buildInputArea(state),
+              if (_shouldShowInput(state)) _buildInputArea(state),
             ],
           ),
         );
       },
     );
+  }
+
+  bool _shouldShowInput(InterviewSessionState state) {
+    if (state.session?.status == 'in_progress') return true;
+    if (state.messages.isNotEmpty && !state.isCompleted && !state.isCancelled) {
+      return true;
+    }
+    return false;
   }
 
   Widget _buildMessageList(InterviewSessionState state) {
@@ -170,12 +211,24 @@ class _InterviewSessionPageState extends State<InterviewSessionPage> {
           message: message,
           showAvatar: index == 0 ||
               state.messages[index - 1].role != message.role,
+          isVoiceMode: _isVoiceMode,
+          sessionId: widget.sessionId,
+          audioService: _audioService,
         );
       },
     );
   }
 
   Widget _buildInputArea(InterviewSessionState state) {
+    if (_isVoiceMode) {
+      return VoiceInputWidget(
+        sessionId: widget.sessionId,
+        audioService: _audioService,
+        onSubmit: _submitVoiceAnswer,
+        isSubmitting: state.isSubmitting,
+      );
+    }
+
     final canSend =
         !state.isSubmitting && !state.isFinished && !state.isCompleted;
 
@@ -239,11 +292,21 @@ class _InterviewSessionPageState extends State<InterviewSessionPage> {
 }
 
 /// A single chat bubble — interviewer on the left, candidate on the right.
+/// In voice mode, interviewer bubbles show a play button for TTS replay.
 class _MessageBubble extends StatelessWidget {
   final InterviewMessage message;
   final bool showAvatar;
+  final bool isVoiceMode;
+  final String sessionId;
+  final AudioService audioService;
 
-  const _MessageBubble({required this.message, required this.showAvatar});
+  const _MessageBubble({
+    required this.message,
+    required this.showAvatar,
+    required this.isVoiceMode,
+    required this.sessionId,
+    required this.audioService,
+  });
 
   bool get _isInterviewer => message.role == 'interviewer';
 
@@ -256,8 +319,7 @@ class _MessageBubble extends StatelessWidget {
       child: Row(
         mainAxisAlignment:
             _isInterviewer ? MainAxisAlignment.start : MainAxisAlignment.end,
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (_isInterviewer) ...[
             if (showAvatar)
@@ -271,27 +333,66 @@ class _MessageBubble extends StatelessWidget {
             const SizedBox(width: 8),
           ],
           Flexible(
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: _isInterviewer
-                    ? theme.colorScheme.surfaceContainerHighest
-                    : theme.colorScheme.primary,
-                borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(12),
-                  topRight: const Radius.circular(12),
-                  bottomLeft: Radius.circular(_isInterviewer ? 4 : 12),
-                  bottomRight: Radius.circular(_isInterviewer ? 12 : 4),
+            child: Column(
+              crossAxisAlignment:
+                  _isInterviewer ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: _isInterviewer
+                        ? theme.colorScheme.surfaceContainerHighest
+                        : theme.colorScheme.primary,
+                    borderRadius: BorderRadius.only(
+                      topLeft: const Radius.circular(12),
+                      topRight: const Radius.circular(12),
+                      bottomLeft: Radius.circular(_isInterviewer ? 4 : 12),
+                      bottomRight: Radius.circular(_isInterviewer ? 12 : 4),
+                    ),
+                  ),
+                  child: Text(
+                    message.content,
+                    style: TextStyle(
+                      color: _isInterviewer
+                          ? theme.colorScheme.onSurface
+                          : theme.colorScheme.onPrimary,
+                    ),
+                  ),
                 ),
-              ),
-              child: Text(
-                message.content,
-                style: TextStyle(
-                  color: _isInterviewer
-                      ? theme.colorScheme.onSurface
-                      : theme.colorScheme.onPrimary,
-                ),
-              ),
+                // TTS replay button for interviewer messages in voice mode
+                if (_isInterviewer && isVoiceMode)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: InkWell(
+                      onTap: () => audioService.playTts(sessionId, message.id),
+                      borderRadius: BorderRadius.circular(12),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.volume_up,
+                              size: 14,
+                              color: theme.colorScheme.primary,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '播放',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: theme.colorScheme.primary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
           if (!_isInterviewer) ...[

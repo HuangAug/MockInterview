@@ -1,7 +1,7 @@
 # MockInterview AI — 编码规范
 
-> 版本：1.0.0  
-> 最后更新：2026-06-12  
+> 版本：1.0.2  
+> 最后更新：2026-06-13  
 > 适用范围：backend/ 与 mobile/ 全部代码
 
 ---
@@ -23,12 +23,16 @@
 
 | 时机 | 操作 |
 |------|------|
-| 开始 Sprint | 创建分支 `feature/sprint-{n}-{slug}` |
+| 开始 Sprint 前 | `git fetch origin` → `git checkout main` → `git pull origin main`，确认与 `origin/main` 一致 |
+| 开始 Sprint | 从已同步的 main 创建分支 `feature/sprint-{n}-{slug}` |
 | 每个 TASK 完成 | Commit（格式见 §1.1），更新任务状态 |
 | Sprint 全部 TASK 完成 | 执行验证 → `git push origin` 当前分支 → 创建 PR |
 
 **禁止：**
 
+- 从未同步的本地 main 创建 Sprint 分支
+- 从上一 Sprint 的 feature 分支直接延续开发（除非用户明确要求）
+- 在前一 Sprint 的 PR 尚未合并时开始下一 Sprint（除非用户确认）
 - 为单个 TASK 创建独立分支
 - TASK 完成后 Push 或创建 PR
 - Push 到 `main` / `master`
@@ -371,3 +375,4 @@ GoRoute(
 |------|------|------|
 | 1.0.0 | 2026-06-12 | 初始版本 |
 | 1.0.1 | 2026-06-12 | §1.1–1.2 Git 工作流改为 Sprint 级 Push/PR |
+| 1.0.2 | 2026-06-13 | §1.2 新增 Sprint 开始前同步 main 流程 |

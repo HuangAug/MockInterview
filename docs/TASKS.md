@@ -1,7 +1,7 @@
 # MockInterview AI — 开发任务清单
 
-> 版本：1.0.0  
-> 最后更新：2026-06-12  
+> 版本：1.0.2  
+> 最后更新：2026-06-13  
 > 任务粒度：每项 ≤ 4 小时（半天）  
 > 关联文档：[CLAUDE_INSTRUCTIONS.md](./CLAUDE_INSTRUCTIONS.md) | [API.md](./API.md) | [DATABASE.md](./DATABASE.md)
 
@@ -26,9 +26,10 @@
 2. 一次只做一个任务
 3. 完成后自检验收标准，再开始下一项
 4. 不得自行添加 PRD 外的功能
-5. 开始 Sprint 时创建分支：`feature/sprint-{n}-{slug}`（同一 Sprint 内所有 TASK 共用，不得为单个 TASK 创建独立分支）
-6. 每个 TASK 完成后仅 **Commit**，禁止 Push 或创建 PR
-7. Sprint 内全部 TASK 完成后，执行验证、Push 并创建 PR（详见 [CLAUDE.md](../CLAUDE.md) 与 [DEVELOPMENT_PLAN.md](./DEVELOPMENT_PLAN.md)）
+5. 开始 Sprint 前须同步 main：`git fetch origin` → `git checkout main` → `git pull origin main`，确认与 `origin/main` 一致
+6. 开始 Sprint 时从已同步的 main 创建分支：`feature/sprint-{n}-{slug}`（同一 Sprint 内所有 TASK 共用，不得为单个 TASK 创建独立分支）
+7. 每个 TASK 完成后仅 **Commit**，禁止 Push 或创建 PR
+8. Sprint 内全部 TASK 完成后，执行验证、Push 并创建 PR（详见 [CLAUDE.md](../CLAUDE.md) 与 [DEVELOPMENT_PLAN.md](./DEVELOPMENT_PLAN.md)）
 
 ---
 
@@ -591,8 +592,8 @@
 - interviewer 问题 TTS 播放（audioplayers）
 
 **验收标准：**
-- [ ] 语音模式录音→转写→提交流程可跑通
-- [ ] AI 问题自动播放 TTS
+- [x] 语音模式录音→转写→提交流程可跑通
+- [x] AI 问题自动播放 TTS
 
 ---
 
@@ -642,9 +643,9 @@
 | **参考** | API §3.16-3.17 |
 
 **验收标准：**
-- [ ] GET /report/status 返回 reportStatus
-- [ ] GET /report 在 ready 时返回 ReportResponse
-- [ ] 非 ready 时 GET /report 返回 40404
+- [x] GET /report/status 返回 reportStatus
+- [x] GET /report 在 ready 时返回 ReportResponse
+- [x] 非 ready 时 GET /report 返回 40404
 
 ---
 
@@ -662,9 +663,9 @@
 - ReportPage：综合分 + 五维分数 + 列表 + 逐题反馈
 
 **验收标准：**
-- [ ] 面试完成后自动轮询并展示报告
-- [ ] 超时显示失败提示
-- [ ] 报告 UI 展示全部字段
+- [x] 面试完成后自动轮询并展示报告
+- [x] 超时显示失败提示
+- [x] 报告 UI 展示全部字段
 
 ---
 
@@ -694,10 +695,10 @@
 | **参考** | PRD §6.2 HistoryPage, HIST-01~06 |
 
 **验收标准：**
-- [ ] 列表展示岗位、难度、日期、分数/状态
-- [ ] completed+ready 可点击进入报告
-- [ ] in_progress 显示「继续面试」
-- [ ] 空状态文案
+- [x] 列表展示岗位、难度、日期、分数/状态
+- [x] completed+ready 可点击进入报告
+- [x] in_progress 显示「继续面试」
+- [x] 空状态文案
 
 ---
 
@@ -710,10 +711,10 @@
 | **参考** | PRD §6.2 ProfilePage |
 
 **验收标准：**
-- [ ] 展示邮箱（只读）
-- [ ] 可编辑昵称、目标岗位
-- [ ] 保存调用 PATCH /users/me
-- [ ] 退出登录清除 token 跳转 /login
+- [x] 展示邮箱（只读）
+- [x] 可编辑昵称、目标岗位
+- [x] 保存调用 PATCH /users/me
+- [x] 退出登录清除 token 跳转 /login
 
 ---
 
@@ -833,3 +834,4 @@ flowchart TD
 |------|------|------|
 | 1.0.0 | 2026-06-12 | 初始 40 项任务 |
 | 1.0.1 | 2026-06-12 | §1.2 Git 工作流改为 Sprint 级 Push/PR |
+| 1.0.2 | 2026-06-13 | §1.2 新增 Sprint 开始前同步 main 规则 |
